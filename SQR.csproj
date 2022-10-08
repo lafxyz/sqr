@@ -14,4 +14,10 @@
       <PackageReference Include="DisCatSharp.Interactivity" Version="10.2.0-hacktober-004" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="config.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
