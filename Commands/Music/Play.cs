@@ -1,3 +1,4 @@
+using System.Text;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -11,7 +12,8 @@ public partial class Music
 {
     [SlashCommand("play", "Add track to queue")]
     public async Task PlayCommand(InteractionContext context, [Option("name", "Music to search", false)] string search,
-        [Option("SearchSource", "Use different search engine")] SearchSources source = SearchSources.YouTube)
+        [Option("SearchSource", "Use different search engine")]
+        SearchSources source = SearchSources.YouTube)
     {
         var voiceState = context.Member.VoiceState;
         if (voiceState is null)
@@ -24,7 +26,7 @@ public partial class Music
                 });
             return;
         }
-        
+
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
         var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
@@ -33,9 +35,9 @@ public partial class Music
         {
             conn = await node.ConnectAsync(voiceState.Channel);
         }
-        
+
         var queueCreated = false;
-        
+
         if (!_servers.ContainsKey(conn))
         {
             queueCreated = true;
@@ -43,7 +45,7 @@ public partial class Music
             {
                 Looping = LoopingState.NoLoop,
                 Queue = new List<Track>()
-            });  
+            });
         }
 
         var map = new Dictionary<SearchSources, LavalinkSearchType>();
@@ -51,7 +53,7 @@ public partial class Music
         map.Add(SearchSources.AppleMusic, LavalinkSearchType.AppleMusic);
         map.Add(SearchSources.Spotify, LavalinkSearchType.Spotify);
         map.Add(SearchSources.SoundCloud, LavalinkSearchType.SoundCloud);
-        
+
         //TODO: Sometimes valid Uri counts as invalid
         var isUriCreated = Uri.TryCreate(search, UriKind.Absolute, out var uri);
 
@@ -77,21 +79,60 @@ public partial class Music
             await DisconnectAsync(conn);
             return;
         }
-        //TODO: Playlist search
-        var track = loadResult.Tracks.First();
-        
-        _servers[conn].Queue.Add(new Track
-        {
-            LavalinkTrack = track,
-            DiscordUser = context.User
-        });
 
-        await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder
+        var playlistKeywords = new[]
+        {
+            "/album/", "/playlist/", "/artist/", "list="
+        };
+
+        for (var index = 0; index < playlistKeywords.Length; index++)
+        {
+            var keyword = playlistKeywords[index];
+            if (!search.Contains(keyword) || isUriCreated == false)
             {
-                IsEphemeral = true,
-                Content = $"Added to queue `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})."
-            });
+                if (index == playlistKeywords.Length - 1 || isUriCreated == false)
+                {
+                    var track = loadResult.Tracks.First();
+                    _servers[conn].Queue.Add(new Track
+                    {
+                        LavalinkTrack = track,
+                        DiscordUser = context.User
+                    });
+                    
+                    await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder
+                        {
+                            IsEphemeral = true,
+                            Content = $"Added to queue `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})."
+                        });
+                    break;
+                }
+                continue;
+            }
+
+
+            var stringBuilder = new StringBuilder($"Playlist added to queue `{loadResult.PlaylistInfo.Name}`: ({loadResult.Tracks.Count})");
+            foreach (var loadResultTrack in loadResult.Tracks)
+            {
+                var content = $"\n**{loadResultTrack.Title}**\n> `{loadResultTrack.Length.ToString(@"hh\:mm\:ss")}` **{loadResultTrack.Author}**\n";
+                if (stringBuilder.Length + content.Length <= 2000)
+                {
+                    stringBuilder.Append(content);
+                }
+                _servers[conn].Queue.Add(new Track
+                {
+                    LavalinkTrack = loadResultTrack,
+                    DiscordUser = context.User
+                });
+            }
+            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder
+                {
+                    IsEphemeral = true,
+                    Content = stringBuilder.ToString()
+                });
+            break;
+        }
 
         while (conn.IsConnected && _servers.ContainsKey(conn) && queueCreated)
         {
@@ -116,6 +157,7 @@ public partial class Music
                 
                 await context.Channel.SendMessageAsync($"Now playing `{toPlay.LavalinkTrack.Title}` by `{toPlay.LavalinkTrack.Author}` ({toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")})."
                 + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? "\n\nIf playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead" : "")}");
+                await Task.Delay(1000);
             }
         }
     }
