@@ -1,6 +1,5 @@
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
-using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
 using DisCatSharp.VoiceNext;
