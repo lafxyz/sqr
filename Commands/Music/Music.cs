@@ -10,7 +10,7 @@ namespace SQR.Commands.Music;
 [SlashCommandGroup("Music", "Music module")]
 public class Music : ApplicationCommandsModule
 {
-    private static Queue<LavalinkTrack> _queue = new();
+    private static Dictionary<LavalinkGuildConnection, Queue<LavalinkTrack>> _connectionsWithQueue = new();
 
     [SlashCommand("join", "Join a voice channel")]
     public async Task JoinVoiceCommand(InteractionContext context, [Option("eh", "ehh", false)] DiscordUser eh)
@@ -146,7 +146,12 @@ public class Music : ApplicationCommandsModule
                 });
             return;
         }
-        
+
+        if (!_connectionsWithQueue.ContainsKey(conn))
+        {
+            _connectionsWithQueue.Add(conn, new Queue<LavalinkTrack>());  
+        }
+
         var loadResult = await node.Rest.GetTracksAsync(search);
         
         if (loadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
@@ -161,8 +166,8 @@ public class Music : ApplicationCommandsModule
         }
         
         var track = loadResult.Tracks.First();
-
-        _queue.Enqueue(track);
+        
+        _connectionsWithQueue[conn].Enqueue(track);
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
@@ -171,15 +176,19 @@ public class Music : ApplicationCommandsModule
                 Content = $"Added to queue `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})."
             });
 
-        while (conn.IsConnected && _queue.Any())
+        while (conn.IsConnected && _connectionsWithQueue[conn].Any())
         {
             if (conn.CurrentState.CurrentTrack == null)
             {
-                var toPlay = _queue.Dequeue();
+                var toPlay = _connectionsWithQueue[conn].Dequeue();
 
                 await conn.PlayAsync(toPlay);
 
                 await context.Channel.SendMessageAsync($"Now playing `{toPlay.Title}` by `{toPlay.Author}` ({toPlay.Length.ToString(@"hh\:mm\:ss")}).");
+            }
+            else
+            {
+                _connectionsWithQueue.Remove(conn);
             }
         }
     }
