@@ -1,4 +1,3 @@
-using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -7,7 +6,7 @@ using DisCatSharp.Lavalink;
 
 namespace SQR.Commands.Music;
 
-public partial class Music : ApplicationCommandsModule
+public partial class Music
 {
     [SlashCommand("loop", "Defines loop mode")]
     public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] LoopingState state)
@@ -24,7 +23,7 @@ public partial class Music : ApplicationCommandsModule
         
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
-        var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
+        var conn = node.GetGuildConnection(context.Member.VoiceState?.Guild);
         
         if (conn == null)
         {

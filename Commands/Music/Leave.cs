@@ -7,7 +7,7 @@ using DisCatSharp.Lavalink;
 
 namespace SQR.Commands.Music;
 
-public partial class Music : ApplicationCommandsModule
+public partial class Music
 {
     [SlashCommand("leave", "Leave from voice channel")]
     public async Task LeaveVoiceCommand(InteractionContext context)

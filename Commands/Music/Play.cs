@@ -1,4 +1,3 @@
-using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -8,7 +7,7 @@ using SQR.Models.Music;
 
 namespace SQR.Commands.Music;
 
-public partial class Music : ApplicationCommandsModule
+public partial class Music
 {
     [SlashCommand("play", "Add track to queue")]
     public async Task PlayCommand(InteractionContext context, [Option("name", "Music to search", false)] string search,
@@ -52,7 +51,8 @@ public partial class Music : ApplicationCommandsModule
         map.Add(SearchSources.AppleMusic, LavalinkSearchType.AppleMusic);
         map.Add(SearchSources.Spotify, LavalinkSearchType.Spotify);
         map.Add(SearchSources.SoundCloud, LavalinkSearchType.SoundCloud);
-
+        
+        //TODO: Sometimes valid Uri counts as invalid
         var isUriCreated = Uri.TryCreate(search, UriKind.Absolute, out var uri);
 
         LavalinkLoadResult loadResult;
@@ -74,6 +74,7 @@ public partial class Music : ApplicationCommandsModule
                     IsEphemeral = true,
                     Content = $"Track search failed for {search}."
                 });
+            await DisconnectAsync(conn);
             return;
         }
         
@@ -104,9 +105,8 @@ public partial class Music : ApplicationCommandsModule
                     
                     if (conn.CurrentState.CurrentTrack == null && !_servers[conn].Queue.Any())
                     {
-                        await conn.DisconnectAsync();
+                        await DisconnectAsync(conn);
                         await context.Channel.SendMessageAsync($"Empty queue, leaving 👋🏿");
-                        _servers.Remove(conn);
                     }
                 };
                 

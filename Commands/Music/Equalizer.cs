@@ -1,4 +1,3 @@
-using System.Text;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -9,8 +8,8 @@ namespace SQR.Commands.Music;
 
 public partial class Music
 {
-    [SlashCommand("queue", "Display queue")]
-    public async Task QueueCommand(InteractionContext context)
+    [SlashCommand("equalizer", "Pauses playback")]
+    public async Task EqualizerCommand(InteractionContext context, [Option("band", "From 0 up to 14")] int bandId, [Option("scale", "From -0,25 up to 1,0")] string scale)
     {
         if (context.Member.VoiceState?.Channel is null)
         {
@@ -37,18 +36,14 @@ public partial class Music
             return;
         }
 
-        var stringBuilder = new StringBuilder($"In queue: ({_servers[conn].Queue.Count})");
-        for (var index = 0; index < _servers[conn].Queue.Count; index++)
-        {
-            var track = _servers[conn].Queue[index];
-            stringBuilder.Append($"\n{index + 1} - `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})");
-        }
+        var gain = Convert.ToSingle(scale);
+        await conn.AdjustEqualizerAsync(new LavalinkBandAdjustment(bandId, gain));
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
                 IsEphemeral = true,
-                Content = stringBuilder.ToString()
+                Content = $"Band {bandId} gain set to {gain}"
             });
     }
 }

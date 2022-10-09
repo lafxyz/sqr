@@ -1,8 +1,5 @@
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
-using DisCatSharp.ApplicationCommands.Context;
-using DisCatSharp.Entities;
-using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using SQR.Models.Music;
 
@@ -12,6 +9,12 @@ namespace SQR.Commands.Music;
 public partial class Music : ApplicationCommandsModule
 {
     private static Dictionary<LavalinkGuildConnection, ConnectedGuild> _servers = new();
+
+    private async Task DisconnectAsync(LavalinkGuildConnection connection)
+    {
+        await connection.DisconnectAsync();
+        _servers.Remove(connection);
+    }
     
     public enum SearchSources
     {

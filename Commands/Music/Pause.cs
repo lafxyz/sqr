@@ -1,4 +1,3 @@
-using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -7,7 +6,7 @@ using DisCatSharp.Lavalink;
 
 namespace SQR.Commands.Music;
 
-public partial class Music : ApplicationCommandsModule
+public partial class Music
 {
     [SlashCommand("pause", "Pauses playback")]
     public async Task PauseCommand(InteractionContext context)
@@ -38,7 +37,7 @@ public partial class Music : ApplicationCommandsModule
         }
         
         await conn.PauseAsync();
-        
+
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
