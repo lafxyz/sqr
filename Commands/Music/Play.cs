@@ -99,7 +99,6 @@ public partial class Music : ApplicationCommandsModule
 
                 conn.PlaybackFinished += async (sender, args) =>
                 {
-                    Console.WriteLine("finished");
                     if (_servers[conn].Looping == LoopingState.LoopTrack) _servers[conn].Queue.Insert(0, toPlay);
                     if (_servers[conn].Looping == LoopingState.LoopQueue) _servers[conn].Queue.Add(toPlay);
                     
