@@ -42,7 +42,7 @@ public partial class Music
             _servers.Add(conn, new ConnectedGuild
             {
                 Looping = LoopingState.NoLoop,
-                Queue = new List<LavalinkTrack>()
+                Queue = new List<Track>()
             });  
         }
 
@@ -77,10 +77,14 @@ public partial class Music
             await DisconnectAsync(conn);
             return;
         }
-        
+        //TODO: Playlist search
         var track = loadResult.Tracks.First();
         
-        _servers[conn].Queue.Add(track);
+        _servers[conn].Queue.Add(new Track
+        {
+            LavalinkTrack = track,
+            DiscordUser = context.User
+        });
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
@@ -96,7 +100,7 @@ public partial class Music
                 var toPlay = _servers[conn].Queue.First();
                 _servers[conn].Queue.Remove(toPlay);
 
-                await conn.PlayAsync(toPlay);
+                await conn.PlayAsync(toPlay.LavalinkTrack);
 
                 conn.PlaybackFinished += async (sender, args) =>
                 {
@@ -110,7 +114,7 @@ public partial class Music
                     }
                 };
                 
-                await context.Channel.SendMessageAsync($"Now playing `{toPlay.Title}` by `{toPlay.Author}` ({toPlay.Length.ToString(@"hh\:mm\:ss")})."
+                await context.Channel.SendMessageAsync($"Now playing `{toPlay.LavalinkTrack.Title}` by `{toPlay.LavalinkTrack.Author}` ({toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")})."
                 + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? "\n\nIf playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead" : "")}");
             }
         }

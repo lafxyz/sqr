@@ -41,7 +41,8 @@ public partial class Music
         for (var index = 0; index < _servers[conn].Queue.Count; index++)
         {
             var track = _servers[conn].Queue[index];
-            stringBuilder.Append($"\n{index + 1} - `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})");
+            var lavalinkTrack = track.LavalinkTrack;
+            stringBuilder.Append($"\n{index + 1} - `{lavalinkTrack.Title}` by `{lavalinkTrack.Author}` ({lavalinkTrack.Length.ToString(@"hh\:mm\:ss")}) | Added by {track.DiscordUser.Mention}");
         }
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
