@@ -10,6 +10,7 @@
 config.json
 Lavalink/*.jar
 Lavalink/logs
+Lavalink/application.yml
 Lavalink/plugins
 .idea/*
 
