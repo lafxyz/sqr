@@ -4,23 +4,12 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using SQR.Models.Music;
 
 namespace SQR.Commands.Music;
 
 public partial class Music : ApplicationCommandsModule
 {
-    public enum SearchSources
-    {
-        [ChoiceName("YouTube")]
-        YouTube,
-        [ChoiceName("Spotify")]
-        Spotify,
-        [ChoiceName("AppleMusic")]
-        AppleMusic,
-        [ChoiceName("SoundCloud")]
-        SoundCloud
-    }
-    
     [SlashCommand("play", "Add track to queue")]
     public async Task PlayCommand(InteractionContext context, [Option("name", "Music to search", false)] string search,
         [Option("SearchSource", "Use different search engine")] SearchSources source = SearchSources.YouTube)
@@ -48,10 +37,14 @@ public partial class Music : ApplicationCommandsModule
         
         var queueCreated = false;
         
-        if (!_connectionsWithQueue.ContainsKey(conn))
+        if (!_servers.ContainsKey(conn))
         {
             queueCreated = true;
-            _connectionsWithQueue.Add(conn, new List<LavalinkTrack>());  
+            _servers.Add(conn, new ConnectedGuild
+            {
+                Looping = LoopingState.NoLoop,
+                Queue = new List<LavalinkTrack>()
+            });  
         }
 
         var map = new Dictionary<SearchSources, LavalinkSearchType>();
@@ -60,8 +53,19 @@ public partial class Music : ApplicationCommandsModule
         map.Add(SearchSources.Spotify, LavalinkSearchType.Spotify);
         map.Add(SearchSources.SoundCloud, LavalinkSearchType.SoundCloud);
 
-        var loadResult = await node.Rest.GetTracksAsync(search, map[source]);
-        
+        var isUriCreated = Uri.TryCreate(search, UriKind.Absolute, out var uri);
+
+        LavalinkLoadResult loadResult;
+
+        if (isUriCreated)
+        {
+            loadResult = await node.Rest.GetTracksAsync(uri);
+        }
+        else
+        {
+            loadResult = await node.Rest.GetTracksAsync(search, map[source]);
+        }
+
         if (loadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -75,7 +79,7 @@ public partial class Music : ApplicationCommandsModule
         
         var track = loadResult.Tracks.First();
         
-        _connectionsWithQueue[conn].Add(track);
+        _servers[conn].Queue.Add(track);
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
@@ -84,23 +88,31 @@ public partial class Music : ApplicationCommandsModule
                 Content = $"Added to queue `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})."
             });
 
-        while (conn.IsConnected && _connectionsWithQueue.ContainsKey(conn) && queueCreated)
+        while (conn.IsConnected && _servers.ContainsKey(conn) && queueCreated)
         {
-            if (conn.CurrentState.CurrentTrack == null && _connectionsWithQueue[conn].Any())
+            if (conn.CurrentState.CurrentTrack == null && _servers[conn].Queue.Any())
             {
-                var toPlay = _connectionsWithQueue[conn].First();
-                _connectionsWithQueue[conn].Remove(toPlay);
+                var toPlay = _servers[conn].Queue.First();
+                _servers[conn].Queue.Remove(toPlay);
 
                 await conn.PlayAsync(toPlay);
+
+                conn.PlaybackFinished += async (sender, args) =>
+                {
+                    Console.WriteLine("finished");
+                    if (_servers[conn].Looping == LoopingState.LoopTrack) _servers[conn].Queue.Insert(0, toPlay);
+                    if (_servers[conn].Looping == LoopingState.LoopQueue) _servers[conn].Queue.Add(toPlay);
+                    
+                    if (conn.CurrentState.CurrentTrack == null && !_servers[conn].Queue.Any())
+                    {
+                        await conn.DisconnectAsync();
+                        await context.Channel.SendMessageAsync($"Empty queue, leaving 👋🏿");
+                        _servers.Remove(conn);
+                    }
+                };
                 
                 await context.Channel.SendMessageAsync($"Now playing `{toPlay.Title}` by `{toPlay.Author}` ({toPlay.Length.ToString(@"hh\:mm\:ss")})."
                 + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? "\n\nIf playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead" : "")}");
-            }
-            else if (conn.CurrentState.CurrentTrack == null && !_connectionsWithQueue[conn].Any())
-            {
-                await conn.DisconnectAsync();
-                await context.Channel.SendMessageAsync($"Empty queue, leaving 👋🏿");
-                _connectionsWithQueue.Remove(conn);
             }
         }
     }

@@ -1,4 +1,3 @@
-using System.Text;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -10,8 +9,8 @@ namespace SQR.Commands.Music;
 
 public partial class Music : ApplicationCommandsModule
 {
-    [SlashCommand("queue", "Display queue")]
-    public async Task QueueCommand(InteractionContext context)
+    [SlashCommand("loop", "Defines loop mode")]
+    public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] LoopingState state)
     {
         if (context.Member.VoiceState?.Channel is null)
         {
@@ -37,19 +36,19 @@ public partial class Music : ApplicationCommandsModule
                 });
             return;
         }
+        
+        _servers[conn].Looping = state;
 
-        var stringBuilder = new StringBuilder($"In queue: ({_servers[conn].Queue.Count})");
-        for (var index = 0; index < _servers[conn].Queue.Count; index++)
-        {
-            var track = _servers[conn].Queue[index];
-            stringBuilder.Append($"\n{index + 1} - `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})");
-        }
+        var map = new Dictionary<LoopingState, string>();
+        map.Add(LoopingState.NoLoop, "Loop disabled");
+        map.Add(LoopingState.LoopTrack, "Single track loop enabled");
+        map.Add(LoopingState.LoopQueue, "Queue loop enabled");
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
                 IsEphemeral = true,
-                Content = stringBuilder.ToString()
+                Content = map[state]
             });
     }
 }

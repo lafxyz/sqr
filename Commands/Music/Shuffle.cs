@@ -38,7 +38,7 @@ public partial class Music : ApplicationCommandsModule
             return;
         }
 
-        _connectionsWithQueue[conn] = _connectionsWithQueue[conn].OrderBy(x => new SecureRandom().Next()).ToList();
+        _servers[conn].Queue = _servers[conn].Queue.OrderBy(x => new SecureRandom().Next()).ToList();
         
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
