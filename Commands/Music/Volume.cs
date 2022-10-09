@@ -8,7 +8,7 @@ namespace SQR.Commands.Music;
 
 public partial class Music
 {
-    [SlashCommand("volume", "Pauses playback")]
+    [SlashCommand("volume", "Sets track volume")]
     public async Task VolumeCommand(InteractionContext context, [Option("percentage", "From 0 to 100")] int scale)
     {
         if (context.Member.VoiceState?.Channel is null)

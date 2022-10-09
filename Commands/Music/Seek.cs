@@ -9,7 +9,7 @@ namespace SQR.Commands.Music;
 
 public partial class Music
 {
-    [SlashCommand("seek", "Sets playback time playback")]
+    [SlashCommand("seek", "Sets playback time")]
     public async Task SeekCommand(InteractionContext context, [Option("time", "Time from which playback starts")] string time)
     {
         TimeSpan timeSpan;

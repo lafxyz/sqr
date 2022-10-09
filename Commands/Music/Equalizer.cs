@@ -8,7 +8,7 @@ namespace SQR.Commands.Music;
 
 public partial class Music
 {
-    [SlashCommand("equalizer", "Pauses playback")]
+    [SlashCommand("equalizer", "Band Equalizer")]
     public async Task EqualizerCommand(InteractionContext context, [Option("band", "From 0 up to 14")] int bandId, [Option("scale", "From -0,25 up to 1,0")] string scale)
     {
         if (context.Member.VoiceState?.Channel is null)
