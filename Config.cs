@@ -19,6 +19,24 @@ namespace QuickType
     {
         [JsonProperty("token")]
         public string Token { get; set; }
+
+        [JsonProperty("guild")]
+        public ulong Guild { get; set; }
+
+        [JsonProperty("lavalink")]
+        public Lavalink Lavalink { get; set; }
+    }
+
+    public partial class Lavalink
+    {
+        [JsonProperty("host")]
+        public string Host { get; set; }
+
+        [JsonProperty("port")]
+        public int Port { get; set; }
+
+        [JsonProperty("password")]
+        public string Password { get; set; }
     }
 
     public partial class Config
