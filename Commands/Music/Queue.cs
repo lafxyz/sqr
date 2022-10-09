@@ -24,7 +24,7 @@ public partial class Music
         
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
-        var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
+        var conn = node.GetGuildConnection(context.Member.VoiceState?.Guild);
         
         if (conn == null)
         {
