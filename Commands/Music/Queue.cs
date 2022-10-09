@@ -37,7 +37,10 @@ public partial class Music
             return;
         }
 
-        var stringBuilder = new StringBuilder($"In queue: ({_servers[conn].Queue.Count})");
+        var currentTrack = conn.CurrentState.CurrentTrack;
+        var stringBuilder = new StringBuilder($"Now playing: `{currentTrack.Title}` by `{currentTrack.Author}`" +
+                                              $"({currentTrack.Position.ToString(@"hh\:mm\:ss")} - {currentTrack.Length.ToString(@"hh\:mm\:ss")})" +
+                                              $"\n\nIn queue: ({_servers[conn].Queue.Count})");
         for (var index = 0; index < _servers[conn].Queue.Count; index++)
         {
             var track = _servers[conn].Queue[index];
