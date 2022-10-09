@@ -106,7 +106,7 @@ public class Music : ApplicationCommandsModule
                 });
             return;
         }
-
+        
         await conn.DisconnectAsync();
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -147,8 +147,11 @@ public class Music : ApplicationCommandsModule
             return;
         }
 
+        var queueCreated = false;
+        
         if (!_connectionsWithQueue.ContainsKey(conn))
         {
+            queueCreated = true;
             _connectionsWithQueue.Add(conn, new Queue<LavalinkTrack>());  
         }
 
@@ -176,7 +179,7 @@ public class Music : ApplicationCommandsModule
                 Content = $"Added to queue `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})."
             });
 
-        while (conn.IsConnected && _connectionsWithQueue[conn].Any())
+        while (conn.IsConnected && _connectionsWithQueue[conn].Any() && queueCreated)
         {
             if (conn.CurrentState.CurrentTrack == null)
             {
