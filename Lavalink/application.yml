@@ -1,3 +1,21 @@
+plugins:
+  lavasrc:
+    providers: # Custom providers for track loading. This is the default
+      - "ytsearch:\"%ISRC%\"" # Will be ignored if track does not have an ISRC. See https://en.wikipedia.org/wiki/International_Standard_Recording_Code
+      - "ytsearch:%QUERY%" # Will be used if track has no ISRC or no track could be found for the ISRC
+      #- "dzisrc:%ISRC%" # Deezer ISRC provider
+    sources:
+      spotify: true # Enable Spotify source
+      applemusic: true # Enable Apple Music source
+      deezer: false # Enable Deezer source
+    spotify:
+      clientId: "4c719db78304485eb51c43bd18ae8045"
+      clientSecret: "dd5cb9639d9d4efc8f920d644bd433a1"
+      countryCode: "US" # the country code you want to use for filtering the artists top tracks. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+    applemusic:
+      countryCode: "US" # the country code you want to use for filtering the artists top tracks and language. See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+    deezer:
+      masterDecryptionKey: "your master decryption key" # the master key used for decrypting the deezer tracks. (yes this is not here you need to get it from somewhere else)
 server: # REST and WS server
   port: 2333
   address: 127.0.0.1
@@ -37,6 +55,9 @@ lavalink:
       #proxyPort: 3128 # Proxy port, 3128 is the default for squidProxy
       #proxyUser: "" # Optional user for basic authentication fields, leave blank if you don't use basic auth
     #proxyPassword: "" # Password for basic authentication
+  plugins:
+    - dependency: "com.github.TopiSenpai.LavaSrc:lavasrc-plugin:3.0.3"
+      repository: "https://jitpack.io"
 
 metrics:
   prometheus:

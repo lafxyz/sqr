@@ -15,6 +15,7 @@
       <PackageReference Include="DisCatSharp.Lavalink" Version="10.2.0-hacktober-004" />
       <PackageReference Include="DisCatSharp.VoiceNext" Version="10.2.0-hacktober-004" />
       <PackageReference Include="DisCatSharp.VoiceNext.Natives" Version="10.2.0-hacktober-004" />
+      <PackageReference Include="TimeSpanParserUtil" Version="1.2.0" />
     </ItemGroup>
 
     <ItemGroup>
