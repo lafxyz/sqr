@@ -8,3 +8,4 @@
 - Edit Lavalink application config
 - Run lavalink using `java -jar lavalink.jar`
 - Compile and run bot using `dotnet run -c Release`
+yes
