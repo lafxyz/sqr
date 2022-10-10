@@ -1,5 +1,6 @@
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
 using DisCatSharp.VoiceNext;
@@ -49,11 +50,34 @@ public class Bot
         };
         
         var applicationCommands = discord.UseApplicationCommands(applicationCommandsConfiguration);
-        applicationCommands.RegisterGuildCommands<Music>(config.Guild);
+        applicationCommands.RegisterGlobalCommands<Music>();
+
+        discord.Ready += async (sender, args) => await PresenceLoop(discord);
 
         await discord.ConnectAsync();
         await lavalink.ConnectAsync(lavalinkConfiguration);
+        
 
         await Task.Delay(-1);
+    }
+
+    private async Task PresenceLoop(DiscordClient client, int position = 0)
+    {
+        while (true)
+        {
+            if (_configuration.Activities is null) return;
+            if (position >= _configuration?.Activities.Count) position = 0;
+            var activity = _configuration?.Activities[position];
+            if (string.IsNullOrWhiteSpace(activity.Name)) throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
+            await client.UpdateStatusAsync(new DiscordActivity
+            {
+                Name = activity.Name,
+                ActivityType = activity.Type,
+                StreamUrl = activity.StreamUrl
+            });
+
+            await Task.Delay(10000);
+            position += 1;
+        }
     }
 }

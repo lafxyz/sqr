@@ -1,9 +1,15 @@
 {
-  "token": "",
-  "guild": 0,
-  "lavalink": {
-      "host": "127.0.0.1",
-      "port": 2333,
-      "password": ""
-  }
+    "token": "",
+    "guild": 0,
+    "lavalink": {
+        "host": "127.0.0.1",
+        "port": 2333,
+        "password": ""
+    },
+    "activities":[
+        { "type": "Playing", "name": "" },
+        { "type": "ListeningTo", "name": "" },
+        { "type": "Watching", "name": "" },
+        { "type": "Streaming", "name": "", "streamurl": "https://twitch.tv/channelname" }
+    ]
 }
