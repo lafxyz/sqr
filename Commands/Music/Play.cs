@@ -22,7 +22,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "You're not in voice channel"
+                    Content = ":x: You're not in voice channel!"
                 });
             return;
         }
@@ -74,7 +74,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = $"Track search failed for {search}."
+                    Content = $":x: Track search failed for {search}."
                 });
             await DisconnectAsync(conn);
             return;
@@ -103,7 +103,7 @@ public partial class Music
                         new DiscordInteractionResponseBuilder
                         {
                             IsEphemeral = true,
-                            Content = $"Added to queue `{track.Title}` by `{track.Author}` ({track.Length.ToString(@"hh\:mm\:ss")})."
+                            Content = $"✅ Added to queue **{track.Title}** by **{track.Author}** `{track.Length.ToString(@"hh\:mm\:ss")}`"
                         });
                     break;
                 }
@@ -111,7 +111,7 @@ public partial class Music
             }
 
 
-            var stringBuilder = new StringBuilder($"Playlist added to queue `{loadResult.PlaylistInfo.Name}`: ({loadResult.Tracks.Count})");
+            var stringBuilder = new StringBuilder($"✅ Successfully added `{loadResult.Tracks.Count}` tracks from **{loadResult.PlaylistInfo.Name}**:");
             foreach (var loadResultTrack in loadResult.Tracks)
             {
                 var content = $"\n**{loadResultTrack.Title}**\n> `{loadResultTrack.Length.ToString(@"hh\:mm\:ss")}` **{loadResultTrack.Author}**\n";
@@ -151,12 +151,12 @@ public partial class Music
                     if (conn.CurrentState.CurrentTrack == null && !_servers[conn].Queue.Any())
                     {
                         await DisconnectAsync(conn);
-                        await context.Channel.SendMessageAsync($"Empty queue, leaving 👋🏿");
+                        await context.Channel.SendMessageAsync($"Empty queue, leaving 👋");
                     }
                 };
                 
-                await context.Channel.SendMessageAsync($"Now playing `{toPlay.LavalinkTrack.Title}` by `{toPlay.LavalinkTrack.Author}` ({toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")})."
-                + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? "\n\nIf playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead" : "")}");
+                await context.Channel.SendMessageAsync($"ℹ️ Now playing **{toPlay.LavalinkTrack.Title}** by **{toPlay.LavalinkTrack.Author}** `{toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")}`"
+                + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? "\n\n⚠️ If playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead" : "")}");
                 await Task.Delay(1000);
             }
         }

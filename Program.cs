@@ -1,4 +1,5 @@
-﻿using QuickType;
+﻿using DisCatSharp.Entities;
+using QuickType;
 
 namespace SQR;
 
