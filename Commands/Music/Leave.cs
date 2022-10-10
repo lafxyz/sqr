@@ -20,7 +20,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "You're not in voice channel"
+                    Content = ":x: You're not in voice channel"
                 });
             return;
         }
