@@ -1,11 +1,15 @@
+using System.Diagnostics.Metrics;
+using System.Reflection;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
 using DisCatSharp.VoiceNext;
 using Microsoft.Extensions.Logging;
 using QuickType;
+using Serilog;
 using SQR.Commands.Music;
 
 namespace SQR;
@@ -17,14 +21,17 @@ public class Bot
     
     public async Task Login(Config? config)
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .CreateLogger();
+        
         _configuration = config;
 
         var discordConfiguration = new DiscordConfiguration
         {
             Token = config.Token,
-            TokenType = TokenType.Bot,
-            MinimumLogLevel = LogLevel.Debug,
-            AutoReconnect = true
+            LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger)
         };
 
         var applicationCommandsConfiguration = new ApplicationCommandsConfiguration
@@ -32,9 +39,7 @@ public class Bot
             EnableDefaultHelp = true
         };
 
-        var discord = new DiscordClient(discordConfiguration);
-        var voiceNext = discord.UseVoiceNext();
-        var lavalink = discord.UseLavalink();
+        var discord = new DiscordShardedClient(discordConfiguration);
 
         var lavalinkEndpoint = new ConnectionEndpoint
         {
@@ -48,21 +53,50 @@ public class Bot
             RestEndpoint = lavalinkEndpoint,
             SocketEndpoint = lavalinkEndpoint
         };
-        
-        var applicationCommands = discord.UseApplicationCommands(applicationCommandsConfiguration);
-        applicationCommands.RegisterGlobalCommands<Music>();
 
-        discord.Ready += async (sender, args) => await PresenceLoop(discord);
-
-        await discord.ConnectAsync();
-        await lavalink.ConnectAsync(lavalinkConfiguration);
+        await discord.StartAsync();
         
+        discord.Logger.LogInformation($"Connection success! Logged in as {discord.CurrentUser.Username}#{discord.CurrentUser.Discriminator} ({discord.CurrentUser.Id})");
+
+        var lavalink = await discord.UseLavalinkAsync();
+        foreach (var extension in lavalink.Values)
+            await extension.ConnectAsync(lavalinkConfiguration);
+        
+        Type appCommandModule = typeof(ApplicationCommandsModule);
+        var commands = Assembly.GetExecutingAssembly().GetTypes().Where(t => appCommandModule.IsAssignableFrom(t) && !t.IsNested).ToList();
+
+        foreach (DiscordClient discordClient in discord.ShardClients.Values)
+        {
+            ApplicationCommandsExtension appCommandShardExtension = discordClient.UseApplicationCommands(applicationCommandsConfiguration);
+
+            // Register event handlers
+            appCommandShardExtension.SlashCommandExecuted += SlashCommandExecuted;
+            appCommandShardExtension.SlashCommandErrored += SlashCommandErrored;
+            appCommandShardExtension.ContextMenuExecuted += ContextMenuCommandExecuted;
+            appCommandShardExtension.ContextMenuErrored += ContextMenuCommandErrored;
+
+            foreach (var command in commands)
+            {
+                appCommandShardExtension.RegisterGuildCommands(command, config.Guild);
+            }
+        }
+        discord.Logger.LogInformation("Application commands registered successfully");
+        
+        discord.Ready += async (sender, args) =>
+        {
+#pragma warning disable CS4014
+            //We don't care about result from this task, so we run this in parallel and disable annoying warning
+            PresenceLoop(sender);
+#pragma warning restore CS4014
+            discord.Logger.LogInformation("Ready to use!");
+        };
 
         await Task.Delay(-1);
     }
 
-    private async Task PresenceLoop(DiscordClient client, int position = 0)
+    private async Task PresenceLoop(DiscordClient client)
     {
+        var position = 0;
         while (true)
         {
             if (_configuration.Activities is null) return;
@@ -79,5 +113,29 @@ public class Bot
             await Task.Delay(10000);
             position += 1;
         }
+    }
+    
+    private static Task SlashCommandExecuted(ApplicationCommandsExtension sender, SlashCommandExecutedEventArgs e)
+    {
+        Log.Logger.Information($"Slash command executed: {e.Context.CommandName}");
+        return Task.CompletedTask;
+    }
+    
+    private static Task SlashCommandErrored(ApplicationCommandsExtension sender, SlashCommandErrorEventArgs e)
+    {
+        Log.Logger.Error($"Slash command errored: {e.Exception.Message} | Command name: {e.Context.CommandName} | Interaction ID: {e.Context.InteractionId}");
+        return Task.CompletedTask;
+    }
+    
+    private static Task ContextMenuCommandExecuted(ApplicationCommandsExtension sender, ContextMenuExecutedEventArgs e)
+    {
+        Log.Logger.Information($"Context menu command executed: {e.Context.CommandName}");
+        return Task.CompletedTask;
+    }
+    
+    private static Task ContextMenuCommandErrored(ApplicationCommandsExtension sender, ContextMenuErrorEventArgs e)
+    {
+        Log.Logger.Error($"Context menu command errored: {e.Exception.Message} | Command name: {e.Context.CommandName} | Interaction ID: {e.Context.InteractionId}");
+        return Task.CompletedTask;
     }
 }
