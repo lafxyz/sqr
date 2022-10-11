@@ -20,7 +20,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "You're not in voice channel"
+                    Content = ":x: You're not in voice channel"
                 });
             return;
         }
@@ -31,7 +31,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "You're in different voice channel"
+                    Content = ":x: You're in different voice channel"
                 });
             return;
         }
@@ -43,7 +43,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "The Lavalink connection is not established"
+                    Content = ":x: The Lavalink connection is not established"
                 });
             return;
         }
@@ -59,7 +59,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "Lavalink is not connected."
+                    Content = ":x: Lavalink is not connected."
                 });
             return;
         }
@@ -70,7 +70,7 @@ public partial class Music
             new DiscordInteractionResponseBuilder
             {
                 IsEphemeral = true,
-                Content = $"Successfully disconnected from `{voiceState.Channel.Name}`"
+                Content = $"✅ Successfully disconnected from `{voiceState.Channel.Name}`"
             });
     }
 }
