@@ -77,7 +77,7 @@ public class Bot
 
             foreach (var command in commands)
             {
-                appCommandShardExtension.RegisterGuildCommands(command, config.Guild);
+                appCommandShardExtension.RegisterGlobalCommands(command);
             }
         }
         discord.Logger.LogInformation("Application commands registered successfully");
