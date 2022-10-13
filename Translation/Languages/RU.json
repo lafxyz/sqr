@@ -18,7 +18,7 @@
         },
         "play_command": {
             "track_search_failed": ":x: Не удалось найти треки по запросу: {0}",
-            "added_to_queue": "✅ Added to queue **{0}** by **{1}** `{2}`",
+            "added_to_queue": "✅ Добавлено в очередь **{0}** от **{1}** `{2}`",
             "playlist_added_to_queue": "✅ Плейлист успешно добавлен `{0}` tracks from **{1}**:",
             "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
             "empty_queue": "Очередь пуста, покидаю канал :wave:",
