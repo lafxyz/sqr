@@ -28,14 +28,17 @@ public class Translator
     {
         _languages.Add(LanguageCode.EN, Language.Language.FromJson(File.ReadAllText("Translation/Languages/EN.json")));
         _languages.Add(LanguageCode.RU, Language.Language.FromJson(File.ReadAllText("Translation/Languages/RU.json")));
+        _languages.Add(LanguageCode.UA, Language.Language.FromJson(File.ReadAllText("Translation/Languages/UA.json")));
         
         _localeMap.Add("en-US", LanguageCode.EN);
         _localeMap.Add("ru", LanguageCode.RU);
+        _localeMap.Add("uk", LanguageCode.UA);
     }
     
     public enum LanguageCode
     {
         RU,
-        EN
+        EN,
+        UA
     }
 }
