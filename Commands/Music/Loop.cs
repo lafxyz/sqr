@@ -3,6 +3,8 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using Microsoft.Extensions.DependencyInjection;
+using SQR.Translation;
 
 namespace SQR.Commands.Music;
 
@@ -11,14 +13,36 @@ public partial class Music
     [SlashCommand("loop", "Defines loop mode")]
     public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] LoopingState state)
     {
-        if (context.Member.VoiceState?.Channel is null)
+        var scope = context.Services.CreateScope();
+        var translator = scope.ServiceProvider.GetService<Translator>();
+
+        var language = translator.Languages[Translator.LanguageCode.EN].Music;
+
+        if (translator.LocaleMap.ContainsKey(context.Locale))
+        {
+            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+        }
+        
+        var voiceState = context.Member.VoiceState;
+        if (voiceState?.Channel is null)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "You're not in voice channel"
+                    Content = language.General.NotInVoice
                 });
+        }
+
+        if (context.Guild.CurrentMember.VoiceState != null && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
+        {
+            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder
+                {
+                    IsEphemeral = true,
+                    Content = language.General.DifferentVoice
+                });
+            return;
         }
         
         var lava = context.Client.GetLavalink();
@@ -31,17 +55,19 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "Lavalink is not connected."
+                    Content = language.General.LavalinkIsNotConnected
                 });
             return;
         }
         
         _servers[conn].Looping = state;
 
-        var map = new Dictionary<LoopingState, string>();
-        map.Add(LoopingState.NoLoop, "Loop disabled");
-        map.Add(LoopingState.LoopTrack, "Single track loop enabled");
-        map.Add(LoopingState.LoopQueue, "Queue loop enabled");
+        var map = new Dictionary<LoopingState, string>
+        {
+            { LoopingState.NoLoop, language.LoopCommand.NoLoop },
+            { LoopingState.LoopTrack, language.LoopCommand.LoopTrack },
+            { LoopingState.LoopQueue, language.LoopCommand.LoopQueue }
+        };
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder

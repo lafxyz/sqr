@@ -7,10 +7,12 @@ using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
 using DisCatSharp.VoiceNext;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QuickType;
 using Serilog;
 using SQR.Commands.Music;
+using SQR.Translation;
 
 namespace SQR;
 
@@ -21,11 +23,6 @@ public class Bot
     
     public async Task Login(Config? config)
     {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .CreateLogger();
-        
         _configuration = config;
 
         var discordConfiguration = new DiscordConfiguration
@@ -36,6 +33,7 @@ public class Bot
 
         var applicationCommandsConfiguration = new ApplicationCommandsConfiguration
         {
+            ServiceProvider = new ServiceCollection().AddSingleton<Translator>().BuildServiceProvider(),
             EnableDefaultHelp = true
         };
 

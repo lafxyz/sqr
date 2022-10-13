@@ -4,7 +4,10 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SQR.Models.Music;
+using SQR.Translation;
 
 namespace SQR.Commands.Music;
 
@@ -15,14 +18,34 @@ public partial class Music
         [Option("SearchSource", "Use different search engine")]
         SearchSources source = SearchSources.YouTube)
     {
+        var scope = context.Services.CreateScope();
+        var translator = scope.ServiceProvider.GetService<Translator>();
+
+        var language = translator.Languages[Translator.LanguageCode.EN].Music;
+
+        if (translator.LocaleMap.ContainsKey(context.Locale))
+        {
+            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+        }
+
         var voiceState = context.Member.VoiceState;
-        if (voiceState is null)
+        if (voiceState?.Channel is null)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = ":x: You're not in voice channel!"
+                    Content = language.General.NotInVoice
+                });
+        }
+
+        if (context.Guild.CurrentMember.VoiceState != null && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
+        {
+            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder
+                {
+                    IsEphemeral = true,
+                    Content = language.General.DifferentVoice
                 });
             return;
         }
@@ -48,13 +71,12 @@ public partial class Music
             });
         }
 
-        var map = new Dictionary<SearchSources, LavalinkSearchType>();
-        map.Add(SearchSources.YouTube, LavalinkSearchType.Youtube);
-        map.Add(SearchSources.AppleMusic, LavalinkSearchType.AppleMusic);
-        map.Add(SearchSources.Spotify, LavalinkSearchType.Spotify);
-        map.Add(SearchSources.SoundCloud, LavalinkSearchType.SoundCloud);
-
-        //TODO: Sometimes valid Uri counts as invalid
+        var searchMap = new Dictionary<SearchSources, LavalinkSearchType>();
+        searchMap.Add(SearchSources.YouTube, LavalinkSearchType.Youtube);
+        searchMap.Add(SearchSources.AppleMusic, LavalinkSearchType.AppleMusic);
+        searchMap.Add(SearchSources.Spotify, LavalinkSearchType.Spotify);
+        searchMap.Add(SearchSources.SoundCloud, LavalinkSearchType.SoundCloud);
+        
         var isUriCreated = Uri.TryCreate(search, UriKind.Absolute, out var uri);
 
         LavalinkLoadResult loadResult;
@@ -65,16 +87,16 @@ public partial class Music
         }
         else
         {
-            loadResult = await node.Rest.GetTracksAsync(search, map[source]);
+            loadResult = await node.Rest.GetTracksAsync(search, searchMap[source]);
         }
-
+        
         if (loadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = $":x: Track search failed for {search}."
+                    Content = string.Format(language.PlayCommand.TrackSearchFailed, search)
                 });
             await DisconnectAsync(conn);
             return;
@@ -103,18 +125,19 @@ public partial class Music
                         new DiscordInteractionResponseBuilder
                         {
                             IsEphemeral = true,
-                            Content = $"✅ Added to queue **{track.Title}** by **{track.Author}** `{track.Length.ToString(@"hh\:mm\:ss")}`"
+                            Content = string.Format(language.PlayCommand.AddedToQueue, 
+                                track.Title, track.Author, track.Length.ToString(@"hh\:mm\:ss"))
                         });
                     break;
                 }
                 continue;
             }
-
-
-            var stringBuilder = new StringBuilder($"✅ Successfully added `{loadResult.Tracks.Count}` tracks from **{loadResult.PlaylistInfo.Name}**:");
+            
+            var stringBuilder = new StringBuilder(string.Format(language.PlayCommand.PlaylistAddedToQueue,
+                loadResult.Tracks.Count, loadResult.PlaylistInfo.Name));
             foreach (var loadResultTrack in loadResult.Tracks)
             {
-                var content = $"\n**{loadResultTrack.Title}**\n> `{loadResultTrack.Length.ToString(@"hh\:mm\:ss")}` **{loadResultTrack.Author}**\n";
+                var content = string.Format(language.PlayCommand.AddedToQueueMessagePattern, loadResultTrack.Title, loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author);
                 if (stringBuilder.Length + content.Length <= 2000)
                 {
                     stringBuilder.Append(content);
@@ -151,12 +174,12 @@ public partial class Music
                     if (conn.CurrentState.CurrentTrack == null && !_servers[conn].Queue.Any())
                     {
                         await DisconnectAsync(conn);
-                        await context.Channel.SendMessageAsync($"Empty queue, leaving 👋");
+                        await context.Channel.SendMessageAsync(language.PlayCommand.EmptyQueue);
                     }
                 };
                 
-                await context.Channel.SendMessageAsync($"ℹ️ Now playing **{toPlay.LavalinkTrack.Title}** by **{toPlay.LavalinkTrack.Author}** `{toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")}`"
-                + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? "\n\n⚠️ If playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead" : "")}");
+                await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.NowPlaying, toPlay.LavalinkTrack.Title, toPlay.LavalinkTrack.Author, toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss"))
+                                                       + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? language.PlayCommand.IfPlaybackStopped : "")}");
                 await Task.Delay(1000);
             }
         }
