@@ -76,6 +76,7 @@ public class Bot
             foreach (var command in commands)
             {
                 appCommandShardExtension.RegisterGlobalCommands(command);
+		discordClient.Logger.LogInformation($"{command} registered");
             }
         }
         discord.Logger.LogInformation("Application commands registered successfully");
