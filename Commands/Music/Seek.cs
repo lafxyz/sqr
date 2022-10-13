@@ -3,6 +3,8 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using Microsoft.Extensions.DependencyInjection;
+using SQR.Translation;
 using TimeSpanParserUtil;
 
 namespace SQR.Commands.Music;
@@ -12,6 +14,16 @@ public partial class Music
     [SlashCommand("seek", "Sets playback time")]
     public async Task SeekCommand(InteractionContext context, [Option("time", "Time from which playback starts")] string time)
     {
+        var scope = context.Services.CreateScope();
+        var translator = scope.ServiceProvider.GetService<Translator>();
+
+        var language = translator.Languages[Translator.LanguageCode.EN].Music;
+
+        if (translator.LocaleMap.ContainsKey(context.Locale))
+        {
+            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+        }
+        
         TimeSpan timeSpan;
         var isTimeParsed = TimeSpanParser.TryParse(time, out timeSpan);
         
@@ -21,18 +33,29 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "Cannot parse time. Please follow this format `5m1s`"
+                    Content = language.SeekCommand.ParseFailed
                 });
             return;
         }
         
-        if (context.Member.VoiceState?.Channel is null)
+        var voiceState = context.Member.VoiceState;
+        if (voiceState?.Channel is null)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "You're not in voice channel"
+                    Content = language.General.NotInVoice
+                });
+        }
+
+        if (context.Guild.CurrentMember.VoiceState != null && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
+        {
+            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder
+                {
+                    IsEphemeral = true,
+                    Content = language.General.DifferentVoice
                 });
             return;
         }
@@ -47,7 +70,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = "Lavalink is not connected."
+                    Content = language.General.LavalinkIsNotConnected
                 });
             return;
         }
@@ -58,7 +81,8 @@ public partial class Music
             new DiscordInteractionResponseBuilder
             {
                 IsEphemeral = true,
-                Content = $"Seeked to `{timeSpan.ToString(@"hh\:mm\:ss")}` `{conn.CurrentState.CurrentTrack.Title}` by `{conn.CurrentState.CurrentTrack.Author}`"
+                Content = String.Format(language.SeekCommand.Seeked, timeSpan.ToString(@"hh\:mm\:ss"), conn.CurrentState.CurrentTrack.Title,
+                    conn.CurrentState.CurrentTrack.Author)
             });
     }
 }

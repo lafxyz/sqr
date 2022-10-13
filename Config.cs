@@ -62,7 +62,7 @@ namespace QuickType
         public static Config FromJson(string json) => JsonConvert.DeserializeObject<Config>(json, QuickType.Converter.Settings);
     }
 
-    public static class Serialize
+    public static partial class Serialize
     {
         public static string ToJson(this Config self) => JsonConvert.SerializeObject(self, QuickType.Converter.Settings);
     }

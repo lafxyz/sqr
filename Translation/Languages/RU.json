@@ -1,0 +1,60 @@
+{
+    "music": {
+        "general": {
+            "lavalink_is_not_connected": ":x: The Lavalink connection is not established",
+            "not_in_voice": "You're not in voice channel",
+            "different_voice": ":x: You're in different voice channel"
+        },
+        "equalizer_command": {
+            "gain_updated": "Band {0} gain set to {1}"
+        },
+        "loop_command": {
+            "no_loop": "Loop disabled",
+            "loop_track": "Single track loop enabled",
+            "loop_queue": "Queue loop enabled"
+        },
+        "pause_command": {
+            "paused": "Paused `{0}` by `{1}`"
+        },
+        "play_command": {
+            "track_search_failed": ":x: Couldn't find any tracks for: {0}",
+            "added_to_queue": "✅ Added to queue **{0}** by **{1}** `{2}`",
+            "playlist_added_to_queue": "✅ Плейлист успешно добавлен `{0}` tracks from **{1}**:",
+            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
+            "empty_queue": "Очередь пуста, покидаю канал :wave:",
+            "now_playing": "ℹ️ Сейчас играет: **{0}** by **{1}** `{2}`",
+            "if_playback_stopped": "\n\n⚠️ Если воспроизведение остановилось/пропустилось само по себе, то это значит, что этот трек не был найден на YouTube используя ISRC-код. Вместо этого используйте поиск по YouTube"
+        },
+        "queue_command": {
+            "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Добавил {3}",
+            "now_playing": "Сейчас играет: `{0}` от `{1}` ({2} - {3})\n\nВ очереди: ({4})"
+        },
+        "resume_command": {
+            "resumed": "Воспроизведение продолжается `{0}` от `{1}`"
+        },
+        "seek_command": {
+            "parse_failed": "Не удалось разобрать время. Следуйте формату `5m1s`",
+            "seeked": "Перемотано на `{0}` `{1}` от `{2}`"
+        },
+        "shuffle_command": {
+            "shuffled": "Очередь перемешена"
+        },
+        "skip_command": {
+            "skipped": "Пропущен трек: `{0}` от `{1}`"
+        },
+        "stop_command": {
+            "disconnected": "✅ Успешно отключено от `{0}`"
+        },
+        "volume_command": {
+            "volume_updated": "Громкость воспроизведения  {0}"
+        }
+    },
+    "dev": {
+        "general": {
+            "no_access": "У вас нет прав на использование этой команды!"
+        },
+        "reload_command":{
+            "reloaded": "Фразы были обновлены успешно!"
+        }
+    }
+}

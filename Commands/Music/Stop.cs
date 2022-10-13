@@ -4,14 +4,26 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using Microsoft.Extensions.DependencyInjection;
+using SQR.Translation;
 
 namespace SQR.Commands.Music;
 
 public partial class Music
 {
-    [SlashCommand("leave", "Leave from voice channel")]
-    public async Task LeaveVoiceCommand(InteractionContext context)
+    [SlashCommand("stop", "Stops playback and leaves from channel")]
+    public async Task StopCommand(InteractionContext context)
     {
+        var scope = context.Services.CreateScope();
+        var translator = scope.ServiceProvider.GetService<Translator>();
+
+        var language = translator.Languages[Translator.LanguageCode.EN].Music;
+
+        if (translator.LocaleMap.ContainsKey(context.Locale))
+        {
+            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+        }
+        
         var voiceState = context.Member.VoiceState;
 
         if (voiceState is null)
@@ -20,7 +32,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = ":x: You're not in voice channel"
+                    Content = language.General.NotInVoice
                 });
             return;
         }
@@ -31,26 +43,13 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = ":x: You're in different voice channel"
+                    Content = language.General.DifferentVoice
                 });
             return;
         }
         
         var lava = context.Client.GetLavalink();
-        if (!lava.ConnectedNodes.Any())
-        {
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
-                {
-                    IsEphemeral = true,
-                    Content = ":x: The Lavalink connection is not established"
-                });
-            return;
-        }
-
         var node = lava.ConnectedNodes.Values.First();
-        await node.ConnectAsync(voiceState.Channel);
-        
         var conn = node.GetGuildConnection(voiceState.Guild);
 
         if (conn == null)
@@ -59,7 +58,7 @@ public partial class Music
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = ":x: Lavalink is not connected."
+                    Content = language.General.LavalinkIsNotConnected
                 });
             return;
         }
@@ -70,7 +69,7 @@ public partial class Music
             new DiscordInteractionResponseBuilder
             {
                 IsEphemeral = true,
-                Content = $"✅ Successfully disconnected from `{voiceState.Channel.Name}`"
+                Content = string.Format(language.StopCommand.Disconnected, voiceState.Channel.Name)
             });
     }
 }
