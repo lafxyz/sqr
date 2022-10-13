@@ -1,23 +1,23 @@
 {
     "music": {
         "general": {
-            "lavalink_is_not_connected": ":x: The Lavalink connection is not established",
-            "not_in_voice": "You're not in voice channel",
-            "different_voice": ":x: You're in different voice channel"
+            "lavalink_is_not_connected": ":x: Соединение с Lavalink не установленно",
+            "not_in_voice": "Вы не в канале",
+            "different_voice": ":x: Вы находитесь в другом канале"
         },
         "equalizer_command": {
-            "gain_updated": "Band {0} gain set to {1}"
+            "gain_updated": "Усиление {0} диапазона изменено на {1}"
         },
         "loop_command": {
-            "no_loop": "Loop disabled",
-            "loop_track": "Single track loop enabled",
-            "loop_queue": "Queue loop enabled"
+            "no_loop": "Повтор отключен",
+            "loop_track": "Повтор текущего трека включен",
+            "loop_queue": "Повтор очереди включен"
         },
         "pause_command": {
-            "paused": "Paused `{0}` by `{1}`"
+            "paused": "Воспроизведение приостановлено `{0}` от `{1}`"
         },
         "play_command": {
-            "track_search_failed": ":x: Couldn't find any tracks for: {0}",
+            "track_search_failed": ":x: Не удалось найти треки по запросу: {0}",
             "added_to_queue": "✅ Added to queue **{0}** by **{1}** `{2}`",
             "playlist_added_to_queue": "✅ Плейлист успешно добавлен `{0}` tracks from **{1}**:",
             "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
