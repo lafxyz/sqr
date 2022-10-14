@@ -16,6 +16,25 @@ public class Translator
     {
         AddLanguages();
     }
+    
+    //idk how to name this properly)
+    /// <summary>
+    /// Gets suffix for slavic language
+    /// </summary>
+    /// <param name="num"></param>
+    /// <param name="one"></param>
+    /// <param name="two"></param>
+    /// <param name="five"></param>
+    /// <example>SuffixForSlavicLanguage(5, "яблоко". "яблока", "яблок") => яблок</example>
+    /// <example2>SuffixForSlavicLanguage(24, "яблоко". "яблока", "яблок") => яблока</example2>
+    /// <returns></returns>
+    public static string SuffixForSlavicLanguage(int num, string one, string two, string five)
+    {
+        if (num > 100) num %= 100;
+        if (num is <= 20 and >= 10) return five;
+        if (num > 20) num %= 10;
+        return num == 1 ? one : num > 1 && num < 5 ? two : five;
+    }
 
     public void Reload()
     {

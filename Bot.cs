@@ -1,4 +1,3 @@
-using System.Diagnostics.Metrics;
 using System.Reflection;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
@@ -6,12 +5,11 @@ using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
-using DisCatSharp.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QuickType;
 using Serilog;
-using SQR.Commands.Music;
+using SQR.Commands.Dev;
 using SQR.Translation;
 
 namespace SQR;
@@ -54,29 +52,35 @@ public class Bot
 
         await discord.StartAsync();
         
-        discord.Logger.LogInformation($"Connection success! Logged in as {discord.CurrentUser.Username}#{discord.CurrentUser.Discriminator} ({discord.CurrentUser.Id})");
+        discord.Logger.LogInformation("Connection success! Logged in as {Username}#{Discriminator} ({Id})", discord.CurrentUser.Username, discord.CurrentUser.Discriminator, discord.CurrentUser.Id);
 
         var lavalink = await discord.UseLavalinkAsync();
         foreach (var extension in lavalink.Values)
             await extension.ConnectAsync(lavalinkConfiguration);
         
-        Type appCommandModule = typeof(ApplicationCommandsModule);
+        var appCommandModule = typeof(ApplicationCommandsModule);
         var commands = Assembly.GetExecutingAssembly().GetTypes().Where(t => appCommandModule.IsAssignableFrom(t) && !t.IsNested).ToList();
 
-        foreach (DiscordClient discordClient in discord.ShardClients.Values)
+        foreach (var discordClient in discord.ShardClients.Values)
         {
-            ApplicationCommandsExtension appCommandShardExtension = discordClient.UseApplicationCommands(applicationCommandsConfiguration);
-
-            // Register event handlers
-            appCommandShardExtension.SlashCommandExecuted += SlashCommandExecuted;
-            appCommandShardExtension.SlashCommandErrored += SlashCommandErrored;
-            appCommandShardExtension.ContextMenuExecuted += ContextMenuCommandExecuted;
-            appCommandShardExtension.ContextMenuErrored += ContextMenuCommandErrored;
+            var applicationCommands = discordClient.UseApplicationCommands(applicationCommandsConfiguration);
+            
+            applicationCommands.SlashCommandExecuted += SlashCommandExecuted;
+            applicationCommands.SlashCommandErrored += SlashCommandErrored;
+            applicationCommands.ContextMenuExecuted += ContextMenuCommandExecuted;
+            applicationCommands.ContextMenuErrored += ContextMenuCommandErrored;
 
             foreach (var command in commands)
             {
-                appCommandShardExtension.RegisterGlobalCommands(command);
-		discordClient.Logger.LogInformation($"{command} registered");
+                if (command == typeof(Dev))
+                {
+                    applicationCommands.RegisterGuildCommands(command, config.Guild);
+                    discord.Logger.LogInformation("{Command} registered as guild command", command);
+                    continue;
+                }
+                
+                applicationCommands.RegisterGlobalCommands(command);
+		        discordClient.Logger.LogInformation("{Command} registered as global command", command);
             }
         }
         discord.Logger.LogInformation("Application commands registered successfully");

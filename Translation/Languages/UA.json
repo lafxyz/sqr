@@ -1,4 +1,5 @@
 {
+    "is_slavic_language": true,
     "music": {
         "general": {
             "lavalink_is_not_connected": ":x: Підключення до Lavalink відсутнє",

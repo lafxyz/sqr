@@ -1,7 +1,5 @@
-﻿using DisCatSharp.Entities;
-using QuickType;
+﻿using QuickType;
 using Serilog;
-using SQR.Translation;
 
 namespace SQR;
 

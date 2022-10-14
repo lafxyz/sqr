@@ -1,4 +1,5 @@
 {
+    "is_slavic_language": false,
     "music": {
         "general": {
             "lavalink_is_not_connected": ":x: The Lavalink connection is not established",

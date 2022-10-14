@@ -5,6 +5,9 @@ namespace SQR.Translation.Language
 {
     public partial class Language
     {
+        [JsonProperty("is_slavic_language")]
+        public bool IsSlavicLanguage { get; set; }
+        
         [JsonProperty("music")]
         public Music Music { get; set; }
 
