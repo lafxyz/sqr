@@ -26,9 +26,10 @@ public class Translator
 
     private void AddLanguages()
     {
-        _languages.Add(LanguageCode.EN, Language.Language.FromJson(File.ReadAllText("Translation/Languages/EN.json")));
-        _languages.Add(LanguageCode.RU, Language.Language.FromJson(File.ReadAllText("Translation/Languages/RU.json")));
-        _languages.Add(LanguageCode.UA, Language.Language.FromJson(File.ReadAllText("Translation/Languages/UA.json")));
+        var path = "Translation/Languages/";
+        _languages.Add(LanguageCode.EN, Language.Language.FromJson(File.ReadAllText(path + "EN.json")));
+        _languages.Add(LanguageCode.RU, Language.Language.FromJson(File.ReadAllText(path + "RU.json")));
+        _languages.Add(LanguageCode.UA, Language.Language.FromJson(File.ReadAllText(path + "UA.json")));
         
         _localeMap.Add("en-US", LanguageCode.EN);
         _localeMap.Add("ru", LanguageCode.RU);

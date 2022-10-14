@@ -156,6 +156,8 @@ public partial class Music
                 });
             break;
         }
+        
+        language = translator.Languages[translator.LocaleMap[context.GuildLocale]].Music;
 
         while (conn.IsConnected && _servers.ContainsKey(conn) && queueCreated)
         {
