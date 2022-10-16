@@ -1,21 +1,21 @@
 {
-    "is_slavic_language": false,
+    "is_slavic_language": false, //xd
     "music": {
         "general": {
             "lavalink_is_not_connected": ":x: The Lavalink connection is not established",
-            "not_in_voice": "You're not in voice channel",
+            "not_in_voice": ":x: You're not in voice channel",
             "different_voice": ":x: You're in different voice channel"
         },
         "equalizer_command": {
-            "gain_updated": "Band {0} gain set to {1}" 
+            "gain_updated": "✅ Band {0} gain set to {1}"
         },
         "loop_command": {
-            "no_loop": "Loop disabled",
-            "loop_track": "Single track loop enabled",
-            "loop_queue": "Queue loop enabled"
+            "no_loop": "✅ Loop disabled",
+            "loop_track": ":repeat_one: Single track loop enabled",
+            "loop_queue": ":repeat: Queue loop enabled"
         },
         "pause_command": {
-            "paused": "Paused `{0}` by `{1}`"
+            "paused": "⏸️ Paused `{0}` by `{1}`"
         },
         "play_command": {
             "track_search_failed": ":x: Couldn't find any tracks for: {0}",
@@ -23,39 +23,39 @@
             "playlist_added_to_queue": "✅ Successfully added to queue `{0}` tracks from **{1}**:",
             "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
             "empty_queue": "Empty queue, leaving :wave:",
-            "now_playing": "ℹ️ Now playing: **{0}** by **{1}** `{2}`",
+            "now_playing": "▶️ Now playing: **{0}** by **{1}** `{2}`",
             "if_playback_stopped": "\n\n⚠️ If playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead"
         },
         "queue_command": {
             "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Added by {3}",
-            "now_playing": "Now playing: `{0}` by `{1}` ({2} - {3})\n\nIn queue: ({4})"
+            "now_playing": "▶️ Now playing: `{0}` by `{1}` ({2} - {3})\n\nIn queue: ({4})"
         },
         "resume_command": {
-            "resumed": "Resumed `{0}` by `{1}`"
+            "resumed": "⏯️ Resumed `{0}` by `{1}`"
         },
         "seek_command": {
-            "parse_failed": "Could't parse time. Please follow this format `5m1s`",
-            "seeked": "Seeked to `{0}` `{1}` by `{2}`"
+            "parse_failed": ":x: Could't parse time. Please follow this format `5m1s`",
+            "seeked": ":fast_forward: Seeked to `{0}` `{1}` by `{2}`"
         },
         "shuffle_command": {
-            "shuffled": "Queue shuffled"
+            "shuffled": ":twisted_rightwards_arrows: Queue shuffled"
         },
         "skip_command": {
-            "skipped": "Skipping `{0}` by `{1}`"
+            "skipped": ":track_next: Skipping `{0}` by `{1}`"
         },
         "stop_command": {
             "disconnected": "✅ Successfully disconnected from `{0}`"
         },
         "volume_command": {
-            "volume_updated": "Volume updated to {0}"
+            "volume_updated": "✅ Volume updated to {0}"
         }
     },
     "dev": {
         "general": {
-            "no_access": "You don't have access to this command!"
+            "no_access": ":x: You don't have access to this command!"
         },
         "reload_command":{
-            "reloaded": "Reloaded successfully"
+            "reloaded": "✅ Reloaded successfully"
         }
     }
 }

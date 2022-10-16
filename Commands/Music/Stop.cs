@@ -28,7 +28,6 @@ public partial class Music
         }
         
         var voiceState = context.Member.VoiceState;
-
         if (voiceState is null)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -37,10 +36,9 @@ public partial class Music
                     IsEphemeral = true,
                     Content = language.General.NotInVoice
                 });
-            return;
         }
 
-        if (voiceState.Channel != context.Guild.CurrentMember.VoiceState.Channel)
+        if (context.Guild.CurrentMember.VoiceState != null && voiceState.Channel != context.Guild.CurrentMember.VoiceState.Channel)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder

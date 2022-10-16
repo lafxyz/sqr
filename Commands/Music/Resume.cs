@@ -27,7 +27,7 @@ public partial class Music
         }
         
         var voiceState = context.Member.VoiceState;
-        if (voiceState?.Channel is null)
+        if (voiceState is null)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder
@@ -37,7 +37,7 @@ public partial class Music
                 });
         }
 
-        if (context.Guild.CurrentMember.VoiceState != null && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
+        if (context.Guild.CurrentMember.VoiceState != null && voiceState.Channel != context.Guild.CurrentMember.VoiceState.Channel)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder

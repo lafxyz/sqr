@@ -3,16 +3,16 @@
     "music": {
         "general": {
             "lavalink_is_not_connected": ":x: Підключення до Lavalink відсутнє",
-            "not_in_voice": "Ви не знаходитесь у голосовому каналі",
+            "not_in_voice": ":x: Ви не знаходитесь у голосовому каналі",
             "different_voice": ":x: Ви не можете управляти ботом знаходясь у другому голосовому каналі"
         },
         "equalizer_command": {
-            "gain_updated": "Діапазон {0} установлено на {1}" 
+            "gain_updated": "✅ Діапазон {0} установлено на {1}"
         },
         "loop_command": {
-            "no_loop": "Повтороення відключене",
-            "loop_track": "Повторення одного треку включене",
-            "loop_queue": "Повторення черги включено"
+            "no_loop": "✅ Повтороення відключене",
+            "loop_track": ":repeat_one: Повторення одного треку включене",
+            "loop_queue": ":repeat: Повторення черги включено"
         },
         "pause_command": {
             "paused": "⏸️ Пауза, `{0}` by `{1}`"
@@ -35,13 +35,13 @@
         },
         "seek_command": {
             "parse_failed": ":x: Помилка під час парсингу строки. Слідуйте формату: `5m1s`",
-            "seeked": "✅ Переходимо до `{0}` `{1}` by `{2}`"
+            "seeked": ":fast_forward: Переходимо до `{0}` `{1}` by `{2}`"
         },
         "shuffle_command": {
-            "shuffled": "✅ Черга перетасована!"
+            "shuffled": ":twisted_rightwards_arrows: Черга перетасована!"
         },
         "skip_command": {
-            "skipped": "✅ Пропускаємо `{0}`, by `{1}`"
+            "skipped": ":track_next: Пропускаємо `{0}`, by `{1}`"
         },
         "stop_command": {
             "disconnected": "✅ Канал `{0}` успішно залишено."

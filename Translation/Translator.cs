@@ -18,17 +18,13 @@ public class Translator
     }
     
     //idk how to name this properly)
-    /// <summary>
-    /// Gets suffix for slavic language
-    /// </summary>
-    /// <param name="num"></param>
-    /// <param name="one"></param>
-    /// <param name="two"></param>
-    /// <param name="five"></param>
-    /// <example>SuffixForSlavicLanguage(5, "яблоко". "яблока", "яблок") => яблок</example>
-    /// <example2>SuffixForSlavicLanguage(24, "яблоко". "яблока", "яблок") => яблока</example2>
-    /// <returns></returns>
-    public static string SuffixForSlavicLanguage(int num, string one, string two, string five)
+    /// <param name="num">Input number</param>
+    /// <param name="one">a word that counts as a singular thing e.g.(1) яблоко</param>
+    /// <param name="two">a word that counts as a two things e.g.(2) яблока</param>
+    /// <param name="five">a word that counts as a five things e.g.(5) яблок</param>
+    /// <example>WordForSlavicLanguage(5, "яблоко". "яблока", "яблок") => яблок</example>
+    /// <example2>WordForSlavicLanguage(24, "яблоко". "яблока", "яблок") => яблока</example2>
+    public string WordForSlavicLanguage(int num, string one, string two, string five)
     {
         if (num > 100) num %= 100;
         if (num is <= 20 and >= 10) return five;
@@ -45,7 +41,7 @@ public class Translator
 
     private void AddLanguages()
     {
-        var path = "Translation/Languages/";
+        var path = "Translation/Translations/";
         _languages.Add(LanguageCode.EN, Language.Language.FromJson(File.ReadAllText(path + "EN.json")));
         _languages.Add(LanguageCode.RU, Language.Language.FromJson(File.ReadAllText(path + "RU.json")));
         _languages.Add(LanguageCode.UA, Language.Language.FromJson(File.ReadAllText(path + "UA.json")));

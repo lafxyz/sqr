@@ -46,8 +46,6 @@ public partial class Dev
         }
         catch (Exception e)
         {
-            translator.Reload();
-        
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder
                 {

@@ -13,6 +13,7 @@ Lavalink/logs
 Lavalink/application.yml
 Lavalink/plugins
 .idea/*
+.fleet/
 
 # User-specific files
 *.rsuser
