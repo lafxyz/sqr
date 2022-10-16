@@ -9,7 +9,7 @@ namespace SQR.Commands.Dev;
 
 public partial class Dev
 {
-    [SlashCommand("reloadlanguages", "Pauses playback")]
+    [SlashCommand("reloadlanguages", "Reloads phrases for all languages")]
     public async Task ReloadLanguagesCommand(InteractionContext context)
     {
         var scope = context.Services.CreateScope();
