@@ -119,7 +119,7 @@ public class Bot
     
     private static Task SlashCommandErrored(ApplicationCommandsExtension sender, SlashCommandErrorEventArgs e)
     {
-        Log.Logger.Error($"Slash command errored: {e.Exception.Message} | Command name: {e.Context.CommandName} | Interaction ID: {e.Context.InteractionId}");
+        Log.Logger.Error(e.Exception,$"Slash command errored: {e.Exception.Message} | Command name: {e.Context.CommandName} | Interaction ID: {e.Context.InteractionId}");
         return Task.CompletedTask;
     }
     

@@ -24,7 +24,6 @@ public partial class Music
         if (translator!.LocaleMap.ContainsKey(context.Locale))
         {
             language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
-            isSlavic = translator.Languages[translator.LocaleMap[context.Locale]].IsSlavicLanguage;
         }
 
         var voiceState = context.Member.VoiceState;

@@ -1,6 +1,11 @@
 {
     "is_slavic_language": true,
     "music": {
+        "slavic_parts": {
+            "one_track": "трек",
+            "two_tracks": "трека",
+            "five_tracks": "треков",
+        },
         "general": {
             "lavalink_is_not_connected": ":x: Соединение с Lavalink не установленно",
             "not_in_voice": ":x: Вы не в канале",
@@ -20,15 +25,15 @@
         "play_command": {
             "track_search_failed": ":x: Не удалось найти треки по запросу: {0}",
             "added_to_queue": "✅ Добавлено в очередь **{0}** от **{1}** `{2}`",
-            "playlist_added_to_queue": "✅ Плейлист успешно добавлен `{0}` tracks from **{1}**:",
+            "playlist_added_to_queue": "✅ Плейлист успешно добавлен `{0}` {1} из **{2}**:",
             "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
             "empty_queue": "Очередь пуста, покидаю канал :wave:",
-            "now_playing": "▶️ Сейчас играет: **{0}** by **{1}** `{2}`",
+            "now_playing": "▶️ Сейчас играет: **{0}** от **{1}** `{2}`",
             "if_playback_stopped": "\n\n⚠️ Если воспроизведение остановилось/пропустилось само по себе, то это значит, что этот трек не был найден на YouTube используя ISRC-код. Вместо этого используйте поиск по YouTube"
         },
         "queue_command": {
             "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Добавил {3}",
-            "now_playing": "▶️ Сейчас играет: `{0}` от `{1}` ({2} - {3})\n\nВ очереди: ({4})"
+            "now_playing": "▶️ Сейчас играет: `{0}` от `{1}` ({2} - {3})\n\nВ очереди {4} {5}:"
         },
         "resume_command": {
             "resumed": "⏯️ Воспроизведение продолжается `{0}` от `{1}`"

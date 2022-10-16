@@ -17,11 +17,11 @@ public partial class Music
         var scope = context.Services.CreateScope();
         var translator = scope.ServiceProvider.GetService<Translator>();
 
-        var isSlavic = translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
+        var isSlavic = translator!.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
 
         var language = translator.Languages[Translator.LanguageCode.EN].Music;
 
-        if (translator.LocaleMap.ContainsKey(context.Locale))
+        if (translator!.LocaleMap.ContainsKey(context.Locale))
         {
             language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
             isSlavic = translator.Languages[translator.LocaleMap[context.Locale]].IsSlavicLanguage;
@@ -38,7 +38,7 @@ public partial class Music
                 });
         }
 
-        if (context.Guild.CurrentMember.VoiceState != null && voiceState.Channel != context.Guild.CurrentMember.VoiceState.Channel)
+        if (context.Guild.CurrentMember.VoiceState != null && voiceState!.Channel != context.Guild.CurrentMember.VoiceState.Channel)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder
@@ -66,11 +66,26 @@ public partial class Music
 
         var currentTrack = conn.CurrentState.CurrentTrack;
         
-        var stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying, 
-            currentTrack.Title, currentTrack.Author,
-            conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
-            currentTrack.Length.ToString(@"hh\:mm\:ss"), _servers[conn].Queue.Count
+        StringBuilder stringBuilder;
+
+        if (isSlavic)
+        {
+            var parts = language.SlavicParts;
+            stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying, 
+                currentTrack.Title, currentTrack.Author,
+                conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
+                currentTrack.Length.ToString(@"hh\:mm\:ss"), _servers[conn].Queue.Count,
+                translator.WordForSlavicLanguage(_servers[conn].Queue.Count, parts.OneTrack, parts.TwoTracks, parts.FiveTracks)
             ));
+        }
+        else
+        {
+            stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying, 
+                currentTrack.Title, currentTrack.Author,
+                conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
+                currentTrack.Length.ToString(@"hh\:mm\:ss"), _servers[conn].Queue.Count
+            ));
+        }
 
         for (var index = 0; index < _servers[conn].Queue.Count; index++)
         {

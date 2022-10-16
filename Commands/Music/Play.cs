@@ -19,12 +19,12 @@ public partial class Music
     {
         var scope = context.Services.CreateScope();
         var translator = scope.ServiceProvider.GetService<Translator>();
-
-        var isSlavic = translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
+        
+        var isSlavic = translator!.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
 
         var language = translator.Languages[Translator.LanguageCode.EN].Music;
 
-        if (translator.LocaleMap.ContainsKey(context.Locale))
+        if (translator!.LocaleMap.ContainsKey(context.Locale))
         {
             language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
             isSlavic = translator.Languages[translator.LocaleMap[context.Locale]].IsSlavicLanguage;
@@ -137,11 +137,25 @@ public partial class Music
                 continue;
             }
             
-            var stringBuilder = new StringBuilder(string.Format(language.PlayCommand.PlaylistAddedToQueue,
-                loadResult.Tracks.Count, loadResult.PlaylistInfo.Name));
+            StringBuilder stringBuilder;
+            
+            if (isSlavic)
+            {
+                var parts = language.SlavicParts;
+                stringBuilder = new StringBuilder(string.Format(language.PlayCommand.PlaylistAddedToQueue,
+                    loadResult.Tracks.Count, 
+                    translator.WordForSlavicLanguage(loadResult.Tracks.Count, parts.OneTrack, parts.TwoTracks, parts.FiveTracks),
+                    loadResult.PlaylistInfo.Name));
+            }
+            else
+            {
+                stringBuilder = new StringBuilder(string.Format(language.PlayCommand.PlaylistAddedToQueue,
+                    loadResult.Tracks.Count, loadResult.PlaylistInfo.Name));
+            }
             foreach (var loadResultTrack in loadResult.Tracks)
             {
                 var content = string.Format(language.PlayCommand.AddedToQueueMessagePattern, loadResultTrack.Title, loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author);
+                
                 if (stringBuilder.Length + content.Length <= 2000)
                 {
                     stringBuilder.Append(content);
@@ -165,29 +179,28 @@ public partial class Music
 
         while (conn.IsConnected && _servers.ContainsKey(conn) && queueCreated)
         {
-            if (conn.CurrentState.CurrentTrack == null && _servers[conn].Queue.Any())
+            if (conn.CurrentState.CurrentTrack != null || !_servers[conn].Queue.Any()) continue;
+            
+            var toPlay = _servers[conn].Queue.First();
+            _servers[conn].Queue.Remove(toPlay);
+
+            await conn.PlayAsync(toPlay.LavalinkTrack);
+
+            conn.PlaybackFinished += async (sender, args) =>
             {
-                var toPlay = _servers[conn].Queue.First();
-                _servers[conn].Queue.Remove(toPlay);
-
-                await conn.PlayAsync(toPlay.LavalinkTrack);
-
-                conn.PlaybackFinished += async (sender, args) =>
-                {
-                    if (_servers[conn].Looping == LoopingState.LoopTrack) _servers[conn].Queue.Insert(0, toPlay);
-                    if (_servers[conn].Looping == LoopingState.LoopQueue) _servers[conn].Queue.Add(toPlay);
+                if (_servers[conn].Looping == LoopingState.LoopTrack) _servers[conn].Queue.Insert(0, toPlay);
+                if (_servers[conn].Looping == LoopingState.LoopQueue) _servers[conn].Queue.Add(toPlay);
                     
-                    if (conn.CurrentState.CurrentTrack == null && !_servers[conn].Queue.Any())
-                    {
-                        await DisconnectAsync(conn);
-                        await context.Channel.SendMessageAsync(language.PlayCommand.EmptyQueue);
-                    }
-                };
+                if (conn.CurrentState.CurrentTrack == null && !_servers[conn].Queue.Any())
+                {
+                    await DisconnectAsync(conn);
+                    await context.Channel.SendMessageAsync(language.PlayCommand.EmptyQueue);
+                }
+            };
                 
-                await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.NowPlaying, toPlay.LavalinkTrack.Title, toPlay.LavalinkTrack.Author, toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss"))
-                                                       + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? language.PlayCommand.IfPlaybackStopped : "")}");
-                await Task.Delay(1000);
-            }
+            await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.NowPlaying, toPlay.LavalinkTrack.Title, toPlay.LavalinkTrack.Author, toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss"))
+                                                   + $"{(conn.CurrentState.CurrentTrack?.SourceName == "spotify" ? language.PlayCommand.IfPlaybackStopped : "")}");
+            await Task.Delay(1000);
         }
     }
 }

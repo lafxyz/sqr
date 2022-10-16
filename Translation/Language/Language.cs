@@ -9,7 +9,7 @@ namespace SQR.Translation.Language
         public bool IsSlavicLanguage { get; set; }
         
         [JsonProperty("music")]
-        public Music Music { get; set; }
+        public Music.Music Music { get; set; }
 
         [JsonProperty("dev")]
         public Dev Dev { get; set; }

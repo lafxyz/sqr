@@ -1,5 +1,5 @@
 {
-    "is_slavic_language": false, //xd
+    "is_slavic_language": false,
     "music": {
         "general": {
             "lavalink_is_not_connected": ":x: The Lavalink connection is not established",
@@ -23,18 +23,18 @@
             "playlist_added_to_queue": "✅ Successfully added to queue `{0}` tracks from **{1}**:",
             "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
             "empty_queue": "Empty queue, leaving :wave:",
-            "now_playing": "▶️ Now playing: **{0}** by **{1}** `{2}`",
+            "now_playing": "▶ Now playing: **{0}** by **{1}** `{2}`",
             "if_playback_stopped": "\n\n⚠️ If playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead"
         },
         "queue_command": {
             "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Added by {3}",
-            "now_playing": "▶️ Now playing: `{0}` by `{1}` ({2} - {3})\n\nIn queue: ({4})"
+            "now_playing": "▶ Now playing: `{0}` by `{1}` ({2} - {3})\n\nIn queue ({4}): "
         },
-        "resume_command": {
-            "resumed": "⏯️ Resumed `{0}` by `{1}`"
+        "resume_command": { 
+            "resumed": "⏯ Resumed `{0}` by `{1}`"
         },
         "seek_command": {
-            "parse_failed": ":x: Could't parse time. Please follow this format `5m1s`",
+            "parse_failed": ":x: Couldn't parse time. Please follow this format `5m1s`",
             "seeked": ":fast_forward: Seeked to `{0}` `{1}` by `{2}`"
         },
         "shuffle_command": {

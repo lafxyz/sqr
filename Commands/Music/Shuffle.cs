@@ -17,14 +17,11 @@ public partial class Music
         var scope = context.Services.CreateScope();
         var translator = scope.ServiceProvider.GetService<Translator>();
 
-        var isSlavic = translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
-
         var language = translator.Languages[Translator.LanguageCode.EN].Music;
 
         if (translator.LocaleMap.ContainsKey(context.Locale))
         {
             language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
-            isSlavic = translator.Languages[translator.LocaleMap[context.Locale]].IsSlavicLanguage;
         }
 
         var voiceState = context.Member.VoiceState;

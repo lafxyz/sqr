@@ -1,10 +1,15 @@
 using Newtonsoft.Json;
+using SQR.Translation.Language.Music.SlavicParts;
+
 #pragma warning disable CS8618
 
-namespace SQR.Translation.Language;
+namespace SQR.Translation.Language.Music;
 
 public class Music
 {
+    [JsonProperty("slavic_parts")]
+    public MusicSlavicParts SlavicParts { get; set; }
+    
     [JsonProperty("general")]
     public MusicGeneral General { get; set; }
 
