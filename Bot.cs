@@ -87,37 +87,30 @@ public class Bot
         
         discord.Ready += async (sender, args) =>
         {
-#pragma warning disable CS4014
-            //We don't care about result from this task, so we run this in parallel and disable annoying warning
-            PresenceLoop(sender);
-#pragma warning restore CS4014
+            var activityIndex = 0;
+            new Timer(async _ =>
+                {
+                    if (_configuration?.Activities is null) return;
+                    if (activityIndex >= _configuration?.Activities.Count) activityIndex = 0;
+                    var activity = _configuration?.Activities[activityIndex];
+                    if (string.IsNullOrWhiteSpace(activity?.Name)) throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
+                    await discord.UpdateStatusAsync(new DiscordActivity
+                    {
+                        Name = activity.Name,
+                        ActivityType = activity.Type,
+                        StreamUrl = activity.StreamUrl
+                    });
+        
+                    activityIndex += 1;
+                }, null, 
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(30));
             discord.Logger.LogInformation("Ready to use!");
         };
 
         await Task.Delay(-1);
     }
 
-    private async Task PresenceLoop(DiscordClient client)
-    {
-        var position = 0;
-        while (true)
-        {
-            if (_configuration.Activities is null) return;
-            if (position >= _configuration?.Activities.Count) position = 0;
-            var activity = _configuration?.Activities[position];
-            if (string.IsNullOrWhiteSpace(activity.Name)) throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
-            await client.UpdateStatusAsync(new DiscordActivity
-            {
-                Name = activity.Name,
-                ActivityType = activity.Type,
-                StreamUrl = activity.StreamUrl
-            });
-
-            await Task.Delay(10000);
-            position += 1;
-        }
-    }
-    
     private static Task SlashCommandExecuted(ApplicationCommandsExtension sender, SlashCommandExecutedEventArgs e)
     {
         Log.Logger.Information($"Slash command executed: {e.Context.CommandName}");
