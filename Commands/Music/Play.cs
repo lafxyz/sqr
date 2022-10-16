@@ -73,12 +73,14 @@ public partial class Music
             });
         }
 
-        var searchMap = new Dictionary<SearchSources, LavalinkSearchType>();
-        searchMap.Add(SearchSources.YouTube, LavalinkSearchType.Youtube);
-        searchMap.Add(SearchSources.AppleMusic, LavalinkSearchType.AppleMusic);
-        searchMap.Add(SearchSources.Spotify, LavalinkSearchType.Spotify);
-        searchMap.Add(SearchSources.SoundCloud, LavalinkSearchType.SoundCloud);
-        
+        var searchMap = new Dictionary<SearchSources, LavalinkSearchType>
+        {
+            { SearchSources.YouTube, LavalinkSearchType.Youtube },
+            { SearchSources.AppleMusic, LavalinkSearchType.AppleMusic },
+            { SearchSources.Spotify, LavalinkSearchType.Spotify },
+            { SearchSources.SoundCloud, LavalinkSearchType.SoundCloud }
+        };
+
         var isUriCreated = Uri.TryCreate(search, UriKind.Absolute, out var uri);
 
         LavalinkLoadResult loadResult;

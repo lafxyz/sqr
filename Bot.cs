@@ -138,7 +138,7 @@ public class Bot
     
     private static Task ContextMenuCommandErrored(ApplicationCommandsExtension sender, ContextMenuErrorEventArgs e)
     {
-        Log.Logger.Error($"Context menu command errored: {e.Exception.Message} | Command name: {e.Context.CommandName} | Interaction ID: {e.Context.InteractionId}");
+        Log.Logger.Error(e.Exception,$"Context menu command errored: {e.Exception.Message} | Command name: {e.Context.CommandName} | Interaction ID: {e.Context.InteractionId}");
         return Task.CompletedTask;
     }
 }
