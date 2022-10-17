@@ -88,21 +88,19 @@ public class Bot
         discord.Ready += async (sender, args) =>
         {
             var activityIndex = 0;
-            new Timer(async _ =>
-                {
-                    if (_configuration?.Activities is null) return;
-                    if (activityIndex >= _configuration?.Activities.Count) activityIndex = 0;
-                    var activity = _configuration?.Activities[activityIndex];
-                    if (string.IsNullOrWhiteSpace(activity?.Name)) throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
-                    await discord.UpdateStatusAsync(new DiscordActivity
-                    {
-                        Name = activity.Name,
-                        ActivityType = activity.Type,
-                        StreamUrl = activity.StreamUrl
-                    });
-        
-                    activityIndex += 1;
-                }, null, 
+
+            async void ActivityLoop(object _)
+            {
+                if (_configuration?.Activities is null) return;
+                if (activityIndex >= _configuration?.Activities.Count) activityIndex = 0;
+                var activity = _configuration?.Activities[activityIndex];
+                if (string.IsNullOrWhiteSpace(activity?.Name)) throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
+                await discord.UpdateStatusAsync(new DiscordActivity { Name = activity.Name, ActivityType = activity.Type, StreamUrl = activity.StreamUrl });
+
+                activityIndex += 1;
+            }
+
+            new Timer(ActivityLoop, null, 
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(30));
             discord.Logger.LogInformation("Ready to use!");
