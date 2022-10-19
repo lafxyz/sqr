@@ -81,11 +81,11 @@ public partial class Music
             { SearchSources.SoundCloud, LavalinkSearchType.SoundCloud }
         };
 
-        var isUriCreated = Uri.TryCreate(search, UriKind.Absolute, out var uri);
+        Uri.TryCreate(search, UriKind.Absolute, out var uri);
 
         LavalinkLoadResult loadResult;
 
-        if (isUriCreated)
+        if (uri is not null)
         {
             loadResult = await node.Rest.GetTracksAsync(uri);
         }
@@ -114,9 +114,9 @@ public partial class Music
         for (var index = 0; index < playlistKeywords.Length; index++)
         {
             var keyword = playlistKeywords[index];
-            if (!search.Contains(keyword) || isUriCreated == false)
+            if (!search.Contains(keyword) || uri is not null)
             {
-                if (index == playlistKeywords.Length - 1 || isUriCreated == false)
+                if (index == playlistKeywords.Length - 1 || uri is not null)
                 {
                     var track = loadResult.Tracks.First();
                     _servers[conn].Queue.Add(new Track
