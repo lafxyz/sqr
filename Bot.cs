@@ -3,6 +3,7 @@ using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.Entities;
+using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,17 +17,18 @@ namespace SQR;
 
 public class Bot
 {
-    public Config? Configuration => _configuration;
-    private Config? _configuration;
+    public Config Configuration => _configuration;
+    private Config _configuration;
     
-    public async Task Login(Config? config)
+    public async Task Login(Config config)
     {
         _configuration = config;
 
         var discordConfiguration = new DiscordConfiguration
         {
             Token = config.Token,
-            LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger)
+            AutoReconnect = true,
+            LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger),
         };
 
         var applicationCommandsConfiguration = new ApplicationCommandsConfiguration
@@ -61,6 +63,11 @@ public class Bot
         var appCommandModule = typeof(ApplicationCommandsModule);
         var commands = Assembly.GetExecutingAssembly().GetTypes().Where(t => appCommandModule.IsAssignableFrom(t) && !t.IsNested).ToList();
 
+        var guildCommands = new List<Type>
+        {
+            typeof(Dev)
+        };
+        
         foreach (var discordClient in discord.ShardClients.Values)
         {
             var applicationCommands = discordClient.UseApplicationCommands(applicationCommandsConfiguration);
@@ -72,7 +79,7 @@ public class Bot
 
             foreach (var command in commands)
             {
-                if (command == typeof(Dev))
+                if (guildCommands.Contains(command))
                 {
                     applicationCommands.RegisterGuildCommands(command, config.Guild);
                     discord.Logger.LogInformation("{Command} registered as guild command", command);
@@ -89,7 +96,7 @@ public class Bot
         {
             var activityIndex = 0;
 
-            async void ActivityLoop(object _)
+            async void ActivityLoop(object? _)
             {
                 if (_configuration?.Activities is null) return;
                 if (activityIndex >= _configuration?.Activities.Count) activityIndex = 0;
