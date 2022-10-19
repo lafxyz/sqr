@@ -114,9 +114,9 @@ public partial class Music
         for (var index = 0; index < playlistKeywords.Length; index++)
         {
             var keyword = playlistKeywords[index];
-            if (!search.Contains(keyword) || uri is not null)
+            if (!search.Contains(keyword) || uri is null)
             {
-                if (index == playlistKeywords.Length - 1 || uri is not null)
+                if (index == playlistKeywords.Length - 1 || uri is null)
                 {
                     var track = loadResult.Tracks.First();
                     _servers[conn].Queue.Add(new Track
