@@ -12,6 +12,7 @@ using QuickType;
 using Serilog;
 using SQR.Commands.Dev;
 using SQR.Translation;
+using SQR.Workers;
 
 namespace SQR;
 
@@ -30,10 +31,13 @@ public class Bot
             AutoReconnect = true,
             LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger),
         };
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<Translator>();
+        serviceCollection.AddSingleton<QueueWorker>();
 
         var applicationCommandsConfiguration = new ApplicationCommandsConfiguration
         {
-            ServiceProvider = new ServiceCollection().AddSingleton<Translator>().BuildServiceProvider(),
+            ServiceProvider = serviceCollection.BuildServiceProvider(),
             EnableDefaultHelp = true
         };
 

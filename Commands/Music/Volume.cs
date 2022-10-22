@@ -5,6 +5,7 @@ using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using Microsoft.Extensions.DependencyInjection;
 using SQR.Translation;
+using SQR.Workers;
 
 namespace SQR.Commands.Music;
 
@@ -15,6 +16,7 @@ public partial class Music
     {
         var scope = context.Services.CreateScope();
         var translator = scope.ServiceProvider.GetService<Translator>();
+        var queue = scope.ServiceProvider.GetService<QueueWorker>();
 
         var language = translator.Languages[Translator.LanguageCode.EN].Music;
 
@@ -61,8 +63,7 @@ public partial class Music
         }
 
         scale = Math.Clamp(scale, 0, 100);
-        await conn.SetVolumeAsync(scale);
-        _servers[conn].Volume = scale;
+        await queue!.SetVolume(context, scale);
         
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder

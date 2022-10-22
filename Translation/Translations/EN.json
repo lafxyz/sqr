@@ -22,7 +22,8 @@
             "added_to_queue": "✅ Added to queue **{0}** by **{1}** `{2}`",
             "playlist_added_to_queue": "✅ Successfully added to queue `{0}` tracks from **{1}**:",
             "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
-            "empty_queue": "Empty queue, leaving :wave:",
+            "empty_queue": "Leaving :wave:",
+            "leaving_in_n_seconds": "The queue is empty, if you don't add tracks within {0} second(s), I will leave the channel!",
             "now_playing": "▶ Now playing: **{0}** by **{1}** `{2}`",
             "if_playback_stopped": "\n\n⚠️ If playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead"
         },

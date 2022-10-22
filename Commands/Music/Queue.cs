@@ -6,6 +6,7 @@ using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using Microsoft.Extensions.DependencyInjection;
 using SQR.Translation;
+using SQR.Workers;
 
 namespace SQR.Commands.Music;
 
@@ -16,6 +17,7 @@ public partial class Music
     {
         var scope = context.Services.CreateScope();
         var translator = scope.ServiceProvider.GetService<Translator>();
+        var queue = scope.ServiceProvider.GetService<QueueWorker>();
 
         var isSlavic = translator!.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
 
@@ -68,14 +70,16 @@ public partial class Music
         
         StringBuilder stringBuilder;
 
+        var connectedGuild = await queue!.GetConnectedGuild(context);
+
         if (isSlavic)
         {
             var parts = language.SlavicParts;
             stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying, 
                 currentTrack.Title, currentTrack.Author,
                 conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
-                currentTrack.Length.ToString(@"hh\:mm\:ss"), _servers[conn].Queue.Count,
-                translator.WordForSlavicLanguage(_servers[conn].Queue.Count, parts.OneTrack, parts.TwoTracks, parts.FiveTracks)
+                currentTrack.Length.ToString(@"hh\:mm\:ss"), connectedGuild.Queue.Count,
+                translator.WordForSlavicLanguage(connectedGuild!.Queue.Count, parts.OneTrack, parts.TwoTracks, parts.FiveTracks)
             ));
         }
         else
@@ -83,13 +87,13 @@ public partial class Music
             stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying, 
                 currentTrack.Title, currentTrack.Author,
                 conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
-                currentTrack.Length.ToString(@"hh\:mm\:ss"), _servers[conn].Queue.Count
+                currentTrack.Length.ToString(@"hh\:mm\:ss"), connectedGuild!.Queue.Count
             ));
         }
 
-        for (var index = 0; index < _servers[conn].Queue.Count; index++)
+        for (var index = 0; index < connectedGuild!.Queue.Count; index++)
         {
-            var track = _servers[conn].Queue[index];
+            var track = connectedGuild!.Queue[index];
             var lavalinkTrack = track.LavalinkTrack;
             var content = string.Format(language.QueueCommand.QueueMessagePattern, lavalinkTrack.Author, lavalinkTrack.Title, lavalinkTrack.Length.ToString(@"hh\:mm\:ss"), track.DiscordUser.Mention);
             if (stringBuilder.Length + content.Length <= 2000)

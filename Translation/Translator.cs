@@ -1,3 +1,4 @@
+using DisCatSharp.Entities;
 using Newtonsoft.Json.Linq;
 using QuickType;
 using Serilog;
@@ -46,9 +47,9 @@ public class Translator
         _languages.Add(LanguageCode.RU, Language.Language.FromJson(File.ReadAllText(path + "RU.json")));
         _languages.Add(LanguageCode.UA, Language.Language.FromJson(File.ReadAllText(path + "UA.json")));
         
-        _localeMap.Add("en-US", LanguageCode.EN);
-        _localeMap.Add("ru", LanguageCode.RU);
-        _localeMap.Add("uk", LanguageCode.UA);
+        _localeMap.Add(DiscordLocales.AMERICAN_ENGLISH, LanguageCode.EN);
+        _localeMap.Add(DiscordLocales.RUSSIAN, LanguageCode.RU);
+        _localeMap.Add(DiscordLocales.UKRAINIAN, LanguageCode.UA);
     }
     
     public enum LanguageCode

@@ -5,18 +5,20 @@ using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using Microsoft.Extensions.DependencyInjection;
 using SQR.Translation;
+using SQR.Workers;
 
 namespace SQR.Commands.Music;
 
 public partial class Music
 {
     [SlashCommand("loop", "Defines loop mode")]
-    public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] LoopingState state)
+    public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] QueueWorker.LoopingState state)
     {
         var scope = context.Services.CreateScope();
         var translator = scope.ServiceProvider.GetService<Translator>();
+        var queue = scope.ServiceProvider.GetService<QueueWorker>();
 
-        var language = translator.Languages[Translator.LanguageCode.EN].Music;
+        var language = translator!.Languages[Translator.LanguageCode.EN].Music;
 
         if (translator.LocaleMap.ContainsKey(context.Locale))
         {
@@ -59,14 +61,14 @@ public partial class Music
                 });
             return;
         }
-        
-        _servers[conn].Looping = state;
 
-        var map = new Dictionary<LoopingState, string>
+        await queue!.SetLoopState(context, state);
+
+        var map = new Dictionary<QueueWorker.LoopingState, string>
         {
-            { LoopingState.NoLoop, language.LoopCommand.NoLoop },
-            { LoopingState.LoopTrack, language.LoopCommand.LoopTrack },
-            { LoopingState.LoopQueue, language.LoopCommand.LoopQueue }
+            { QueueWorker.LoopingState.NoLoop, language.LoopCommand.NoLoop },
+            { QueueWorker.LoopingState.LoopTrack, language.LoopCommand.LoopTrack },
+            { QueueWorker.LoopingState.LoopQueue, language.LoopCommand.LoopQueue }
         };
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,

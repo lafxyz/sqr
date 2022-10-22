@@ -62,11 +62,12 @@ public partial class Music
         
         await conn.PauseAsync();
 
+        var currentTrack = conn.CurrentState.CurrentTrack;
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
                 IsEphemeral = true,
-                Content = language.PauseCommand.Paused
+                Content = string.Format(language.PauseCommand.Paused, currentTrack.Title, currentTrack.Author)
             });
     }
 }
