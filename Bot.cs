@@ -100,7 +100,8 @@ public class Bot
         {
             var activityIndex = 0;
 
-            async void ActivityLoop(object? _)
+            var activityTask = new BackgroundTask(TimeSpan.FromSeconds(30));
+            activityTask.Start(async () =>
             {
                 if (_configuration?.Activities is null) return;
                 if (activityIndex >= _configuration?.Activities.Count) activityIndex = 0;
@@ -109,11 +110,7 @@ public class Bot
                 await discord.UpdateStatusAsync(new DiscordActivity { Name = activity.Name, ActivityType = activity.Type, StreamUrl = activity.StreamUrl });
 
                 activityIndex += 1;
-            }
-
-            new Timer(ActivityLoop, null, 
-                TimeSpan.FromSeconds(1),
-                TimeSpan.FromSeconds(30));
+            });
             discord.Logger.LogInformation("Ready to use!");
         };
 

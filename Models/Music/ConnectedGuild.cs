@@ -10,5 +10,7 @@ public class ConnectedGuild
     public List<Track> Queue;
     public InteractionContext Context;
     public int Volume;
-    public bool FirstTrackRecieved = false;
+    public bool IsFirstTrackRecieved = false;
+    public bool WaitingForTracks = false;
+    public DateTimeOffset WaitingForTracksSince;
 }

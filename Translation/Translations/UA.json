@@ -1,5 +1,9 @@
 {
     "is_slavic_language": true,
+    "general": {
+        "internal_error": "An internal error happened: `{0}`",
+        "external_error": "An external error happened: `{0}`"
+    },
     "music": {
         "slavic_parts": {
             "one_track": "трек",

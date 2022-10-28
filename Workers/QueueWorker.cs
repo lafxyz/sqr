@@ -22,93 +22,110 @@ public class QueueWorker
     
     private static Dictionary<LavalinkGuildConnection, ConnectedGuild> _servers = new();
 
+    private Translator? _translator;
+
     public QueueWorker()
     {
-        Task.Run(async delegate
+        var queue = new BackgroundTask(TimeSpan.FromSeconds(3));
+        queue.Start(async () =>
         {
-            while (true)
+            foreach (var (connection, connectedGuild) in _servers)
             {
-                foreach (var (connection, connectedGuild) in _servers)
+                await Task.Run(async delegate
                 {
-                    await Task.Run(async delegate
+                    try
                     {
-                        try
+                        var context = connectedGuild.Context;
+
+                        if (_translator == null)
                         {
-                            var context = connectedGuild.Context;
                             var scope = context.Services.CreateScope();
-                            var translator = scope.ServiceProvider.GetService<Translator>();
+                            _translator = scope.ServiceProvider.GetService<Translator>();
+                        }
+
+                        var language = _translator!.Languages[Translator.LanguageCode.EN].Music;
+                        var isSlavic = _translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
+
+                        if (_translator.LocaleMap.ContainsKey(context.Locale))
+                        {
+                            language = _translator.Languages[_translator.LocaleMap[context.Locale]].Music;
+                            isSlavic = _translator.Languages[_translator.LocaleMap[context.Locale]].IsSlavicLanguage;
+                        }
+
+                        if (connection.IsConnected == false)
+                        {
+                            await DisconnectAsync(connection);
+                            return;
+                        }
+
+                        if (connection.CurrentState.CurrentTrack != null)
+                        {
+                            return;
+                        }
+
+                        if (connectedGuild.Queue.Any() == false)
+                        {
+                            if (connectedGuild.IsFirstTrackRecieved == false) return;
+                            if (connectedGuild.WaitingForTracks) return;
                             
-                            var language = translator!.Languages[Translator.LanguageCode.EN].Music;
-                            var isSlavic = translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
-
-                            if (translator.LocaleMap.ContainsKey(context.Locale))
+                            const int seconds = 60;
+                            if (isSlavic)
                             {
-                                language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
-                                isSlavic = translator.Languages[translator.LocaleMap[context.Locale]].IsSlavicLanguage;
+                                await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.LeavingInNSeconds, seconds,
+                                    _translator.WordForSlavicLanguage(seconds,
+                                        language.SlavicParts.OneSecond,
+                                        language.SlavicParts.TwoSeconds,
+                                        language.SlavicParts.FiveSeconds)));
+                            }
+                            else
+                            {
+                                await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.LeavingInNSeconds, seconds));
                             }
 
-                            if (connection.IsConnected == false)
-                            {
-                                await DisconnectAsync(connection);
-                                return;
-                            }
+                            connectedGuild.WaitingForTracks = true;
+                            connectedGuild.WaitingForTracksSince = DateTimeOffset.Now;
 
-                            if (connection.CurrentState.CurrentTrack != null)
+                            while (DateTimeOffset.Now - connectedGuild.WaitingForTracksSince < TimeSpan.FromSeconds(seconds))
                             {
-                                return;
+                                Console.WriteLine("Waiting for track))");
+                                if (connectedGuild.WaitingForTracks == false)
+                                {
+                                    return;
+                                }
+                                await Task.Delay(1000);
                             }
 
                             if (connectedGuild.Queue.Any() == false)
                             {
-                                if (connectedGuild.FirstTrackRecieved == false) return;
-                                const int seconds = 60;
-                                if (isSlavic)
-                                {
-                                    await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.LeavingInNSeconds, seconds,
-                                        translator.WordForSlavicLanguage(seconds,
-                                            language.SlavicParts.OneSecond,
-                                            language.SlavicParts.TwoSeconds,
-                                            language.SlavicParts.FiveSeconds)));
-                                }
-                                else
-                                {
-                                    await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.LeavingInNSeconds, seconds));
-                                }
-
-                                await Task.Delay(seconds * 1000);
-
-                                if (connectedGuild.Queue.Any() == false)
-                                {
-                                    await DisconnectAsync(connection);
-                                    await context.Channel.SendMessageAsync(language.PlayCommand.EmptyQueue);
-                                }
-                            }
-                            else
-                            {
-                                var toPlay = connectedGuild.Queue.First();
-                                connectedGuild.Queue.Remove(toPlay);
-
-                                if (connectedGuild.Looping == LoopingState.LoopTrack) connectedGuild.Queue.Insert(0, toPlay);
-                                if (connectedGuild.Looping == LoopingState.LoopQueue) connectedGuild.Queue.Add(toPlay);
-
-                                await connection.PlayAsync(toPlay.LavalinkTrack);
-                                if (connectedGuild.FirstTrackRecieved == false) connectedGuild.FirstTrackRecieved = true;
-
-                                await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.NowPlaying, toPlay.LavalinkTrack.Title, toPlay.LavalinkTrack.Author, toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss"))
-                                                                           + $"{(connection.CurrentState.CurrentTrack?.SourceName == "spotify" ? language.PlayCommand.IfPlaybackStopped : "")}");
-                                await Task.Delay(1000);
+                                await DisconnectAsync(connection);
+                                await context.Channel.SendMessageAsync(language.PlayCommand.EmptyQueue);
                             }
                         }
-                        catch (Exception e)
+                        else
                         {
-                            Console.WriteLine(e);
+                            var toPlay = connectedGuild.Queue.First();
+                            connectedGuild.Queue.Remove(toPlay);
+
+                            if (connectedGuild.Looping == LoopingState.LoopTrack) connectedGuild.Queue.Insert(0, toPlay);
+                            if (connectedGuild.Looping == LoopingState.LoopQueue) connectedGuild.Queue.Add(toPlay);
+
+                            await connection.PlayAsync(toPlay.LavalinkTrack);
+                            if (connectedGuild.IsFirstTrackRecieved == false) connectedGuild.IsFirstTrackRecieved = true;
+
+                            await context.Channel.SendMessageAsync(string.Format(language.PlayCommand.NowPlaying, toPlay.LavalinkTrack.Title, toPlay.LavalinkTrack.Author, toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss"))
+                                                                   + $"{(connection.CurrentState.CurrentTrack?.SourceName == "spotify" ? language.PlayCommand.IfPlaybackStopped : "")}");
+                            await Task.Delay(1000);
                         }
-                    });
-                }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                });
             }
         });
-    }   
-    
+    }
+
     public enum SearchSources
     {
         [ChoiceName("YouTube")]
@@ -176,8 +193,16 @@ public class QueueWorker
                         LavalinkTrack = track,
                         DiscordUser = context.User
                     });
-
-                    _servers[connection].FirstTrackRecieved = true;
+                    
+                    if (_servers[connection].IsFirstTrackRecieved == false)
+                    {
+                        _servers[connection].IsFirstTrackRecieved = true;
+                    }
+                    
+                    if (_servers[connection].WaitingForTracks)
+                    {
+                        _servers[connection].WaitingForTracks = false;
+                    }
                     
                     return new LoadResult()
                     {
@@ -197,7 +222,7 @@ public class QueueWorker
             });
         }
         
-        _servers[connection].FirstTrackRecieved = true;
+        _servers[connection].IsFirstTrackRecieved = true;
 
         return new LoadResult()
         {
@@ -232,8 +257,8 @@ public class QueueWorker
 
     public async Task DisconnectAsync(LavalinkGuildConnection connection)
     {
-        await connection.DisconnectAsync();
         _servers.Remove(connection);
+        await connection.DisconnectAsync();
     }
 
     public async Task SetVolume(InteractionContext context, int scale)

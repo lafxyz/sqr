@@ -11,13 +11,11 @@ namespace SQR.Commands.Music;
 
 public partial class Music
 {
-    [SlashCommand("equalizer", "Band Equalizer")]
-    public async Task EqualizerCommand(InteractionContext context, [Option("band", "From 0 up to 14")] int bandId, [Option("scale", "From -0,25 up to 1,0")] string scale)
+    [SlashCommand("equalizerpreset", "Band Equalizer presets")]
+    public async Task EqualizerPresetCommand(InteractionContext context, [Option("preset", "EarRape, Bass, Pop, Default")] EqPresets preset)
     {
         var scope = context.Services.CreateScope();
         var translator = scope.ServiceProvider.GetService<Translator>();
-        
-        
 
         var isSlavic = translator?.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
 
@@ -44,15 +42,32 @@ public partial class Music
                 });
             return;
         }
+    
+        var aaa = new Dictionary<EqPresets, float[]?>
+        {
+            { EqPresets.EarRape, new[] { 1f, 1f, 1f, 1f, -0.25f, -0.25f, -0.25f, -0.25f, -0.25f, -0.25f, -0.25f, 1f, 1f, 1f, 1f } },
+            { EqPresets.Bass, new[] { 0.10f, 0.10f, 0.05f, 0.05f, 0.05f, -0.05f, -0.05f, 0f, -0.05f, -0.05f, 0f, 0.05f, 0.05f, 0.10f, 0.10f } },
+            { EqPresets.Pop, new[] { -0.01f, -0.01f, 0f, 0.01f, 0.02f, 0.05f, 0.07f, 0.10f, 0.07f, 0.05f, 0.02f, 0.01f, 0f, -0.01f, -0.01f } },
+            { EqPresets.Default, null }
+        };
 
-        var gain = Convert.ToSingle(scale);
-        await conn.AdjustEqualizerAsync(new LavalinkBandAdjustment(bandId, gain));
+        if (aaa[preset] == null)
+        {
+            await conn.AdjustEqualizerAsync(new LavalinkBandAdjustment());
+        }
+        else
+        {
+            for (int i = 0; i < aaa[preset].Length; i++)
+            {
+                await conn.AdjustEqualizerAsync(new LavalinkBandAdjustment(i, aaa[preset][i]));
+            }
+        }
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
                 IsEphemeral = true,
-                Content = string.Format(language.EqualizerCommand.GainUpdated, bandId, gain)
+                Content = string.Format("Set equalizer preset to {0}", preset)
             });
     }
 }

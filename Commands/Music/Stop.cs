@@ -25,26 +25,7 @@ public partial class Music
         }
         
         var voiceState = context.Member.VoiceState;
-        if (voiceState is null)
-        {
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
-                {
-                    IsEphemeral = true,
-                    Content = language.General.NotInVoice
-                });
-        }
-
-        if (context.Guild.CurrentMember.VoiceState != null && voiceState.Channel != context.Guild.CurrentMember.VoiceState.Channel)
-        {
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
-                {
-                    IsEphemeral = true,
-                    Content = language.General.DifferentVoice
-                });
-            return;
-        }
+        
         
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
