@@ -87,7 +87,6 @@ public class QueueWorker
 
                             while (DateTimeOffset.Now - connectedGuild.WaitingForTracksSince < TimeSpan.FromSeconds(seconds))
                             {
-                                Console.WriteLine("Waiting for track))");
                                 if (connectedGuild.WaitingForTracks == false)
                                 {
                                     return;
