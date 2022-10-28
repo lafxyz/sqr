@@ -28,11 +28,7 @@ public class BackgroundTask
                 action.Invoke();
             }
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        catch (OperationCanceledException) { }
     }
 
     public async Task StopAsync()
