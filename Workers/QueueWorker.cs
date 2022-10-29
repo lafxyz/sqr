@@ -189,7 +189,7 @@ public class QueueWorker
         for (var index = 0; index < PlaylistKeywords.Length; index++)
         {
             var keyword = PlaylistKeywords[index];
-            if (search.Contains(keyword) || uri is not null) continue;
+            if (search.Contains(keyword) && uri is not null) break;
             
             if (index == PlaylistKeywords.Length - 1 || uri is null)
             {
