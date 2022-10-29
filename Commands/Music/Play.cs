@@ -19,6 +19,11 @@ public partial class Music
         [Option("SearchSource", "Use different search engine")]
         QueueWorker.SearchSources source = QueueWorker.SearchSources.YouTube)
     {
+        await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+        {
+            IsEphemeral = true
+        });
+        
         var scope = context.Services.CreateScope();
         var translator = scope.ServiceProvider.GetService<Translator>();
         var queue = scope.ServiceProvider.GetService<QueueWorker>();
@@ -40,20 +45,16 @@ public partial class Music
             var voiceState = context.Member.VoiceState;
             if (voiceState is null)
             {
-                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
                     {
-                        IsEphemeral = true,
                         Content = music.General.NotInVoice
                     });
             }
 
             if (context.Guild.CurrentMember.VoiceState != null && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
             {
-                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder
+                await context.EditResponseAsync(new DiscordWebhookBuilder()
                     {
-                        IsEphemeral = true,
                         Content = music.General.DifferentVoice
                     });
                 return;
