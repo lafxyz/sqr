@@ -15,20 +15,13 @@ public partial class Music
     [SlashCommand("shuffle", "Shuffles queue")]
     public async Task ShuffleCommand(InteractionContext context)
     {
-        var scope = context.Services.CreateScope();
-        var translator = scope.ServiceProvider.GetService<Translator>();
-        var queue = scope.ServiceProvider.GetService<QueueWorker>();
+        var language = Translator.Languages[Translator.LanguageCode.EN].Music;
 
-        var language = translator.Languages[Translator.LanguageCode.EN].Music;
-
-        if (translator.LocaleMap.ContainsKey(context.Locale))
+        if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
-            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
         }
 
-        var voiceState = context.Member.VoiceState;
-        
-        
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
         var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
@@ -44,7 +37,7 @@ public partial class Music
             return;
         }
 
-        await queue!.Shuffle(context);
+        Queue.Shuffle(context);
         
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder

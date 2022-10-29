@@ -14,8 +14,8 @@ class Program
             .CreateLogger();
         
         var config = Config.FromJson(File.ReadAllText("config.json"));
-        var bot = new Bot();
+        var bot = new Bot(config);
 
-        bot.Login(config).GetAwaiter().GetResult();
+        bot.Login().GetAwaiter().GetResult();
     }
 }

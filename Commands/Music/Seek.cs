@@ -14,14 +14,11 @@ public partial class Music
     [SlashCommand("seek", "Sets playback time")]
     public async Task SeekCommand(InteractionContext context, [Option("time", "Time from which playback starts")] string time)
     {
-        var scope = context.Services.CreateScope();
-        var translator = scope.ServiceProvider.GetService<Translator>();
+        var language = Translator.Languages[Translator.LanguageCode.EN].Music;
 
-        var language = translator.Languages[Translator.LanguageCode.EN].Music;
-
-        if (translator.LocaleMap.ContainsKey(context.Locale))
+        if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
-            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
         }
         
         TimeSpan timeSpan;

@@ -7,12 +7,18 @@ using DisCatSharp.Lavalink;
 using Microsoft.Extensions.DependencyInjection;
 using SQR.Models.Music;
 using SQR.Translation;
+using SQR.Workers;
 
 namespace SQR.Commands.Music;
 
 [SlashCommandGroup("Music", "Music module")]
 public partial class Music : ApplicationCommandsModule
 {
+#pragma warning disable CS8618
+    public Translator Translator { private get; set; }
+    public QueueWorker Queue { private get; set; }
+#pragma warning restore CS8618
+    
     public enum EqPresets
     {
         [ChoiceName("EarRape")]
@@ -27,14 +33,12 @@ public partial class Music : ApplicationCommandsModule
     
     public override async Task<bool> BeforeSlashExecutionAsync(InteractionContext context)
     {
-        var scope = context.Services.CreateScope();
-        var translator = scope.ServiceProvider.GetService<Translator>();
 
-        var language = translator.Languages[Translator.LanguageCode.EN].Music;
+        var language = Translator.Languages[Translator.LanguageCode.EN].Music;
 
-        if (translator.LocaleMap.ContainsKey(context.Locale))
+        if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
-            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
         }
         
         var voiceState = context.Member.VoiceState;
@@ -48,7 +52,7 @@ public partial class Music : ApplicationCommandsModule
                 });
         }
 
-        if (context.Guild.CurrentMember.VoiceState != null && voiceState.Channel != context.Guild.CurrentMember.VoiceState.Channel)
+        if (context.Guild.CurrentMember.VoiceState != null && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
         {
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder

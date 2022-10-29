@@ -20,7 +20,7 @@ namespace SQR.Translation.Language
 
     public partial class Language
     {
-        public static Language FromJson(string json) => JsonConvert.DeserializeObject<Language>(json, QuickType.Converter.Settings);
+        public static Language FromJson(string json) => JsonConvert.DeserializeObject<Language>(json, QuickType.Converter.Settings) ?? throw new ArgumentException(null, nameof(json));
     }
 
     public static class Serialize

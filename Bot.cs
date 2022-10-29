@@ -20,14 +20,17 @@ public class Bot
 {
     public Config Configuration => _configuration;
     private Config _configuration;
-    
-    public async Task Login(Config config)
-    {
-        _configuration = config;
 
+    public Bot(Config configuration)
+    {
+        _configuration = configuration;
+    }
+
+    public async Task Login()
+    {
         var discordConfiguration = new DiscordConfiguration
         {
-            Token = config.Token,
+            Token = _configuration.Token,
             AutoReconnect = true,
             LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger),
         };
@@ -45,13 +48,13 @@ public class Bot
 
         var lavalinkEndpoint = new ConnectionEndpoint
         {
-            Hostname = config.Lavalink.Host,
-            Port = config.Lavalink.Port
+            Hostname = _configuration.Lavalink.Host,
+            Port = _configuration.Lavalink.Port
         };
 
         var lavalinkConfiguration = new LavalinkConfiguration
         {
-            Password = config.Lavalink.Password,
+            Password = _configuration.Lavalink.Password,
             RestEndpoint = lavalinkEndpoint,
             SocketEndpoint = lavalinkEndpoint
         };
@@ -85,7 +88,7 @@ public class Bot
             {
                 if (guildCommands.Contains(command))
                 {
-                    applicationCommands.RegisterGuildCommands(command, config.Guild);
+                    applicationCommands.RegisterGuildCommands(command, _configuration.Guild);
                     discord.Logger.LogInformation("{Command} registered as guild command", command);
                     continue;
                 }
@@ -96,7 +99,7 @@ public class Bot
         }
         discord.Logger.LogInformation("Application commands registered successfully");
         
-        discord.Ready += async (sender, args) =>
+        discord.Ready += (_, _) =>
         {
             var activityIndex = 0;
 
@@ -112,6 +115,7 @@ public class Bot
                 activityIndex += 1;
             });
             discord.Logger.LogInformation("Ready to use!");
+            return Task.CompletedTask;
         };
 
         await Task.Delay(-1);

@@ -5,8 +5,6 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Exceptions;
 using DisCatSharp.Lavalink;
-using Microsoft.Extensions.DependencyInjection;
-using SQR.Models.Music;
 using SQR.Translation;
 using SQR.Workers;
 
@@ -15,7 +13,7 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("play", "Add track to queue")]
-    public async Task PlayCommand(InteractionContext context, [Option("name", "Music to search", false)] string search,
+    public async Task PlayCommand(InteractionContext context, [Option("name", "Music to search")] string search,
         [Option("SearchSource", "Use different search engine")]
         QueueWorker.SearchSources source = QueueWorker.SearchSources.YouTube)
     {
@@ -23,19 +21,15 @@ public partial class Music
         {
             IsEphemeral = true
         });
-        
-        var scope = context.Services.CreateScope();
-        var translator = scope.ServiceProvider.GetService<Translator>();
-        var queue = scope.ServiceProvider.GetService<QueueWorker>();
-        
-        var isSlavic = translator!.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
-        
-        var language = translator.Languages[Translator.LanguageCode.EN];
 
-        if (translator.LocaleMap.ContainsKey(context.Locale))
+        var isSlavic = Translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
+        
+        var language = Translator.Languages[Translator.LanguageCode.EN];
+
+        if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
-            language = translator.Languages[translator.LocaleMap[context.Locale]];
-            isSlavic = translator.Languages[translator.LocaleMap[context.Locale]].IsSlavicLanguage;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]];
+            isSlavic = Translator.Languages[Translator.LocaleMap[context.Locale]].IsSlavicLanguage;
         }
 
         var music = language.Music;
@@ -60,9 +54,9 @@ public partial class Music
                 return;
             }
 
-            var isConnected = await queue?.TryConnectAsync(context)!;
+            await Queue.TryConnectAsync(context);
 
-            var loadResult = await queue.AddAsync(context, search, source);
+            var loadResult = await Queue.AddAsync(context, search, source);
         
             if (loadResult.LavalinkLoadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
             {
@@ -95,7 +89,7 @@ public partial class Music
                 var parts = music.SlavicParts;
                 stringBuilder = new StringBuilder(string.Format(music.PlayCommand.PlaylistAddedToQueue,
                     loadResult.LavalinkLoadResult.Tracks.Count, 
-                    translator.WordForSlavicLanguage(loadResult.LavalinkLoadResult.Tracks.Count, parts.OneTrack, parts.TwoTracks, parts.FiveTracks),
+                    Translator.WordForSlavicLanguage(loadResult.LavalinkLoadResult.Tracks.Count, parts.OneTrack, parts.TwoTracks, parts.FiveTracks),
                     loadResult.LavalinkLoadResult.PlaylistInfo.Name));
             }
             else

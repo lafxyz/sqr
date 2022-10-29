@@ -9,17 +9,15 @@ namespace SQR.Commands.Dev;
 
 public partial class Dev
 {
+
     [SlashCommand("reloadlanguages", "Reloads phrases for all languages")]
     public async Task ReloadLanguagesCommand(InteractionContext context)
     {
-        var scope = context.Services.CreateScope();
-        var translator = scope.ServiceProvider.GetService<Translator>();
+        var language = Translator.Languages[Translator.LanguageCode.EN].Dev;
 
-        var language = translator.Languages[Translator.LanguageCode.EN].Dev;
-
-        if (translator.LocaleMap.ContainsKey(context.Locale))
+        if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
-            language = translator.Languages[translator.LocaleMap[context.Locale]].Dev;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Dev;
         }
         
         if (!context.Client.CurrentApplication.Owners.Contains(context.User))
@@ -35,7 +33,7 @@ public partial class Dev
 
         try
         {
-            translator.Reload();
+            Translator.Reload();
         
             await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder

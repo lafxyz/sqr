@@ -14,21 +14,12 @@ public partial class Music
     [SlashCommand("equalizer", "Band Equalizer")]
     public async Task EqualizerCommand(InteractionContext context, [Option("band", "From 0 up to 14")] int bandId, [Option("scale", "From -0,25 up to 1,0")] string scale)
     {
-        var scope = context.Services.CreateScope();
-        var translator = scope.ServiceProvider.GetService<Translator>();
-        
-        
+        var language = Translator.Languages[Translator.LanguageCode.EN].Music;
 
-        var isSlavic = translator?.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
-
-        var language = translator?.Languages[Translator.LanguageCode.EN].Music;
-
-        if (translator!.LocaleMap.ContainsKey(context.Locale))
+        if (Translator!.LocaleMap.ContainsKey(context.Locale))
         {
-            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
         }
-
-        var voiceState = context.Member.VoiceState;
 
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();

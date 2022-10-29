@@ -14,20 +14,13 @@ public partial class Music
     [SlashCommand("equalizerpreset", "Band Equalizer presets")]
     public async Task EqualizerPresetCommand(InteractionContext context, [Option("preset", "EarRape, Bass, Pop, Default")] EqPresets preset)
     {
-        var scope = context.Services.CreateScope();
-        var translator = scope.ServiceProvider.GetService<Translator>();
+        var language = Translator.Languages[Translator.LanguageCode.EN].Music;
 
-        var isSlavic = translator?.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
-
-        var language = translator?.Languages[Translator.LanguageCode.EN].Music;
-
-        if (translator!.LocaleMap.ContainsKey(context.Locale))
+        if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
-            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
         }
-
-        var voiceState = context.Member.VoiceState;
-
+        
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
         var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
@@ -57,9 +50,9 @@ public partial class Music
         }
         else
         {
-            for (int i = 0; i < aaa[preset].Length; i++)
+            for (int i = 0; i < aaa[preset]?.Length; i++)
             {
-                await conn.AdjustEqualizerAsync(new LavalinkBandAdjustment(i, aaa[preset][i]));
+                await conn.AdjustEqualizerAsync(new LavalinkBandAdjustment(i, aaa[preset]![i]));
             }
         }
 
@@ -67,7 +60,7 @@ public partial class Music
             new DiscordInteractionResponseBuilder
             {
                 IsEphemeral = true,
-                Content = string.Format("Set equalizer preset to {0}", preset)
+                Content = string.Format(language.EqualizerPresetCommand.PresetUpdated, preset)
             });
     }
 }

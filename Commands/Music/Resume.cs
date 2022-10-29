@@ -13,14 +13,11 @@ public partial class Music
     [SlashCommand("resume", "Resumes playback")]
     public async Task ResumeCommand(InteractionContext context)
     {
-        var scope = context.Services.CreateScope();
-        var translator = scope.ServiceProvider.GetService<Translator>();
+        var language = Translator.Languages[Translator.LanguageCode.EN].Music;
 
-        var language = translator.Languages[Translator.LanguageCode.EN].Music;
-
-        if (translator.LocaleMap.ContainsKey(context.Locale))
+        if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
-            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
         }
         
         var voiceState = context.Member.VoiceState;

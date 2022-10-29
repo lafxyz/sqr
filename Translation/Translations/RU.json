@@ -57,7 +57,10 @@
             "disconnected": "✅ Успешно отключено от `{0}`"
         },
         "volume_command": {
-            "volume_updated": "✅ Громкость воспроизведения  {0}"
+            "volume_updated": "✅ Громкость воспроизведения изменена на {0}"
+        },
+        "equalizer_preset_command": {
+            "preset_updated": "✅ Пресет эквалайзера изменен на {0}"
         }
     },
     "dev": {

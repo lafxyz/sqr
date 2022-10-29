@@ -1,8 +1,9 @@
 using Newtonsoft.Json;
+#pragma warning disable CS8618
 
 namespace SQR.Translation.Language;
 
-public partial class General
+public class General
 {
     [JsonProperty("internal_error")] 
     public string InternalError { get; set; }

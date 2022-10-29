@@ -52,7 +52,10 @@
             "disconnected": "✅ Successfully disconnected from `{0}`"
         },
         "volume_command": {
-            "volume_updated": "✅ Volume updated to {0}"
+            "volume_updated": "✅ Volume changed to {0}"
+        },
+        "equalizer_preset_command": {
+            "preset_updated": "✅ Equalizer preset changed to {0}"
         }
     },
     "dev": {

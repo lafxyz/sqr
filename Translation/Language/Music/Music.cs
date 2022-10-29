@@ -45,5 +45,7 @@ public class Music
     
     [JsonProperty("volume_command")]
     public VolumeCommand VolumeCommand { get; set; }
-
+    
+    [JsonProperty("equalizer_preset_command")]
+    public EqualizerPresetCommand EqualizerPresetCommand { get; set; }
 }
