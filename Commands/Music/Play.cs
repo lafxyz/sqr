@@ -60,10 +60,8 @@ public partial class Music
         
             if (loadResult.LavalinkLoadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
             {
-                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder
+                await context.EditResponseAsync(new DiscordWebhookBuilder
                     {
-                        IsEphemeral = true,
                         Content = string.Format(music.PlayCommand.TrackSearchFailed, search)
                     });
                 return;
@@ -72,10 +70,8 @@ public partial class Music
             {
                 var track = loadResult.LavalinkLoadResult.Tracks.First();
 
-                await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder
+                await context.EditResponseAsync(new DiscordWebhookBuilder
                     {
-                        IsEphemeral = true,
                         Content = string.Format(music.PlayCommand.AddedToQueue, 
                             track.Title, track.Author, track.Length.ToString(@"hh\:mm\:ss"))
                     });
@@ -102,10 +98,8 @@ public partial class Music
             {
                 stringBuilder.Append(content);
             }
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
+            await context.EditResponseAsync(new DiscordWebhookBuilder
                 {
-                    IsEphemeral = true,
                     Content = stringBuilder.ToString()
                 });
         }
