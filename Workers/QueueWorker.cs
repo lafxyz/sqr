@@ -1,14 +1,8 @@
-using System.ComponentModel;
-using System.Data;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Common;
-using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using SQR.Commands.Music;
-using SQR.Extenstions;
 using SQR.Models.Music;
 using SQR.Translation;
 
@@ -182,35 +176,36 @@ public class QueueWorker
         for (var index = 0; index < PlaylistKeywords.Length; index++)
         {
             var keyword = PlaylistKeywords[index];
-            if (!search.Contains(keyword) || uri is null)
+            if (search.Contains(keyword) || uri is not null) continue;
+            
+            if (index == PlaylistKeywords.Length - 1 || uri is null)
             {
-                if (index == PlaylistKeywords.Length - 1 || uri is null)
+                var track = lavalinkLoadResult.Tracks.First();
+                _servers[connection].Queue.Add(new Track
                 {
-                    var track = lavalinkLoadResult.Tracks.First();
-                    _servers[connection].Queue.Add(new Track
-                    {
-                        LavalinkTrack = track,
-                        DiscordUser = context.User
-                    });
+                    LavalinkTrack = track,
+                    DiscordUser = context.User
+                });
                     
-                    if (_servers[connection].IsFirstTrackRecieved == false)
-                    {
-                        _servers[connection].IsFirstTrackRecieved = true;
-                    }
-                    
-                    if (_servers[connection].WaitingForTracks)
-                    {
-                        _servers[connection].WaitingForTracks = false;
-                    }
-                    
-                    return new LoadResult()
-                    {
-                        IsPlaylist = false,
-                        LavalinkLoadResult = lavalinkLoadResult
-                    };;
+                if (_servers[connection].IsFirstTrackRecieved == false)
+                {
+                    _servers[connection].IsFirstTrackRecieved = true;
                 }
+                    
+                if (_servers[connection].WaitingForTracks)
+                {
+                    _servers[connection].WaitingForTracks = false;
+                }
+                    
+                return new LoadResult()
+                {
+                    IsPlaylist = false,
+                    LavalinkLoadResult = lavalinkLoadResult
+                };;
             }
         }
+
+        Console.WriteLine("xdee");
         
         foreach (var loadResultTrack in lavalinkLoadResult.Tracks)
         {

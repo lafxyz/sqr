@@ -1,8 +1,8 @@
 {
     "is_slavic_language": true,
     "general": {
-        "internal_error": "An internal error happened: `{0}`",
-        "external_error": "An external error happened: `{0}`"
+        "internal_error": "Сталась зовнішня проблема: `{0}`",
+        "external_error": "Сталась внутрішня проблема: `{0}`"
     },
     "music": {
         "slavic_parts": {
