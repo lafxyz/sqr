@@ -22,7 +22,6 @@ COPY ./Database/init-user-db.sh /docker-entrypoint-initdb.d/
 
 FROM ibm-semeru-runtimes:open-17-jre-focal AS lavalink
 RUN ["mkdir", "Lavalink"]
-COPY ./Lavalink/* /Lavalink/
+COPY ./Lavalink /Lavalink
 WORKDIR /Lavalink
-CMD ["echo $PWD"]
-CMD java -jar Lavalink.jar
+ENTRYPOINT ["java", "-jar Lavalink.jar"]
