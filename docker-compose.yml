@@ -7,6 +7,12 @@ services:
       target: build
     depends_on:
       - database
+      - lavalink
+  lavalink:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: lavalink
   database:
     build:
       context: .
