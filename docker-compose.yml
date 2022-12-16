@@ -9,6 +9,8 @@ services:
       - database
       - lavalink
   lavalink:
+    ports:
+      - "2333:2333"
     build:
       context: .
       dockerfile: Dockerfile
