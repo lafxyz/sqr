@@ -1,10 +1,13 @@
-using System.Diagnostics;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Common;
 using DisCatSharp.Lavalink;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SQR.Database;
+using SQR.Database.Music;
 using SQR.Models.Music;
+using SQR.Services;
 using SQR.Translation;
 
 namespace SQR.Workers;
@@ -17,12 +20,13 @@ public class QueueWorker
     
     private static Dictionary<LavalinkGuildConnection, ConnectedGuild> _servers = new();
 
-    private Translator? _translator;
+    private readonly DatabaseService _dbService;
 
-    public QueueWorker()
+    public QueueWorker(DatabaseService dbService, Translator translator)
     {
+        _dbService = dbService;
+
         var queue = new BackgroundTask(TimeSpan.FromSeconds(3));
-        // ReSharper disable once AsyncVoidLambda
         queue.Start(async () =>
         {
             foreach (var (connection, connectedGuild) in _servers)
@@ -33,19 +37,13 @@ public class QueueWorker
                     {
                         var context = connectedGuild.Context;
 
-                        if (_translator == null)
-                        {
-                            var scope = context?.Services.CreateScope();
-                            _translator = scope?.ServiceProvider.GetService<Translator>()!;
-                        }
+                        var language = translator!.Languages[Translator.LanguageCode.EN].Music;
+                        var isSlavic = translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
 
-                        var language = _translator!.Languages[Translator.LanguageCode.EN].Music;
-                        var isSlavic = _translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
-
-                        if (context?.Locale != null && _translator.LocaleMap.ContainsKey(context.Locale))
+                        if (context?.Locale != null && translator.LocaleMap.ContainsKey(context.Locale))
                         {
-                            language = _translator.Languages[_translator.LocaleMap[context.Locale]].Music;
-                            isSlavic = _translator.Languages[_translator.LocaleMap[context.Locale]].IsSlavicLanguage;
+                            language = translator.Languages[translator.LocaleMap[context.Locale]].Music;
+                            isSlavic = translator.Languages[translator.LocaleMap[context.Locale]].IsSlavicLanguage;
                         }
 
                         if (connection.IsConnected == false)
@@ -59,7 +57,7 @@ public class QueueWorker
                             return;
                         }
 
-                        if (connectedGuild.Queue != null && connectedGuild.Queue.Any() == false)
+                        if (connectedGuild.Queue.Any() == false)
                         {
                             if (connectedGuild.IsFirstTrackReceived == false) return;
                             if (connectedGuild.WaitingForTracks) return;
@@ -71,7 +69,7 @@ public class QueueWorker
                                 {
                                     await context.Channel.SendMessageAsync(string.Format(
                                         language.PlayCommand.LeavingInNSeconds, seconds,
-                                        _translator.WordForSlavicLanguage(seconds,
+                                        translator.WordForSlavicLanguage(seconds,
                                             language.SlavicParts.OneSecond,
                                             language.SlavicParts.TwoSeconds,
                                             language.SlavicParts.FiveSeconds)));
@@ -152,11 +150,11 @@ public class QueueWorker
         [ChoiceName("Loop current queue")]
         LoopQueue
     }
-    
+
     public async Task<LoadResult> AddAsync(InteractionContext context, string search, SearchSources source)
     {
         Uri.TryCreate(search, UriKind.Absolute, out var uri);
-        
+
         var searchMap = new Dictionary<SearchSources, LavalinkSearchType>
         {
             { SearchSources.YouTube, LavalinkSearchType.Youtube },
@@ -164,58 +162,55 @@ public class QueueWorker
             { SearchSources.Spotify, LavalinkSearchType.Spotify },
             { SearchSources.SoundCloud, LavalinkSearchType.SoundCloud }
         };
-        
+
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
         var connection = node.GetGuildConnection(context.Guild);
-        
+
         LavalinkLoadResult lavalinkLoadResult;
 
-        if (uri is not null)
-        {
-            lavalinkLoadResult = await node.Rest.GetTracksAsync(uri);
-        }
-        else
-        {
-            lavalinkLoadResult = await node.Rest.GetTracksAsync(search, searchMap[source]);
-        }
-        
+        lavalinkLoadResult = uri is not null
+            ? await node.Rest.GetTracksAsync(uri)
+            : await node.Rest.GetTracksAsync(search, searchMap[source]);
+
         if (lavalinkLoadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
         {
             var tracks = Servers[connection].Queue;
-            if (tracks != null && tracks.Any() == false) await DisconnectAsync(connection);
+            if (tracks.Any() == false) await DisconnectAsync(connection);
         }
 
-        for (var index = 0; index < PlaylistKeywords.Length; index++)
+        if (!PlaylistKeywords.Any(search.Contains))
         {
-            var keyword = PlaylistKeywords[index];
-            if (search.Contains(keyword) && uri is not null) break;
+            var lavalinkTrack = lavalinkLoadResult.Tracks.First();
+            var tracks = _servers[connection].Queue;
             
-            if (index == PlaylistKeywords.Length - 1 || uri is null)
-            {
-                var track = lavalinkLoadResult.Tracks.First();
-                var tracks = _servers[connection].Queue;
-                tracks?.Add(new Track(track, context.User));
+            var track = new Track(lavalinkTrack, context.User);
+            
+            await _dbService.CreateTrackAsync(DbConverter.ToTrackDb(track));
 
-                if (_servers[connection].IsFirstTrackReceived == false)
-                {
-                    _servers[connection].IsFirstTrackReceived = true;
-                }
-                    
-                if (_servers[connection].WaitingForTracks)
-                {
-                    _servers[connection].WaitingForTracks = false;
-                }
-                    
-                return new LoadResult(lavalinkLoadResult, false);
+            tracks.Add(track);
+
+            if (_servers[connection].IsFirstTrackReceived == false)
+            {
+                _servers[connection].IsFirstTrackReceived = true;
             }
+                    
+            if (_servers[connection].WaitingForTracks)
+            {
+                _servers[connection].WaitingForTracks = false;
+            }
+                    
+            return new LoadResult(lavalinkLoadResult, false);
         }
         
         foreach (var loadResultTrack in lavalinkLoadResult.Tracks)
         {
             var tracks = _servers[connection].Queue;
-            if (tracks != null)
-                tracks.Add(new Track(loadResultTrack, context.User));
+            var track = new Track(loadResultTrack, context.User);
+            
+            tracks.Add(track);
+            
+            await _dbService.CreateTrackAsync(DbConverter.ToTrackDb(track));
         }
         
         _servers[connection].IsFirstTrackReceived = true;
@@ -228,28 +223,27 @@ public class QueueWorker
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
         var connection = node.GetGuildConnection(context.Member.VoiceState.Guild);
-        if (connection is null)
-        {
-            connection = await node.ConnectAsync(context.Member.VoiceState?.Channel);
-            if (!_servers.ContainsKey(connection))
-            {
-                _servers.Add(connection, new ConnectedGuild
-                {
-                    Looping = LoopingState.NoLoop,
-                    Queue = new List<Track>(),
-                    Context = context,
-                    Volume = 100
-                });
-            }
-            return true;
-        }
+
+        if (connection is not null) return false;
         
-        return false;
+        connection = await node.ConnectAsync(context.Member.VoiceState?.Channel);
+        if (_servers.ContainsKey(connection)) return true;
+            
+        var connectedGuild = new ConnectedGuild
+        {
+            Looping = LoopingState.NoLoop,
+            Queue = new List<Track>(),
+            Context = context,
+            Volume = 100
+        };
+        _servers.Add(connection, connectedGuild);
+        return true;
     }
 
     public async Task DisconnectAsync(LavalinkGuildConnection connection)
     {
         _servers.Remove(connection);
+        
         await connection.DisconnectAsync();
     }
 

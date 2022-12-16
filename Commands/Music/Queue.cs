@@ -45,31 +45,40 @@ public partial class Music
         StringBuilder stringBuilder = new StringBuilder();
 
         var connectedGuild = await Queue.GetConnectedGuild(context);
+        
+        var tracks = connectedGuild.Queue;
+        
+        TimeSpan estimatedPlaybackTime = default;
 
-        if (isSlavic)
+        if (tracks != null)
         {
-            var parts = language.SlavicParts;
-            var tracks = connectedGuild?.Queue;
-            if (tracks != null)
+            estimatedPlaybackTime = tracks.Aggregate(estimatedPlaybackTime,
+                (current, track) => current.Add(track.LavalinkTrack.Length));  
+
+            if (isSlavic)
+            {
+                var parts = language.SlavicParts;
+
                 stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying,
                     currentTrack.Title, currentTrack.Author,
                     conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
                     currentTrack.Length.ToString(@"hh\:mm\:ss"), tracks.Count,
-                    Translator.WordForSlavicLanguage(tracks.Count, parts.OneTrack, parts.TwoTracks, parts.FiveTracks)
+                    estimatedPlaybackTime.ToString(@"hh\:mm\:ss"),
+                    Translator.WordForSlavicLanguage(tracks.Count, parts.OneTrack, parts.TwoTracks,
+                        parts.FiveTracks)
                 ));
-        }
-        else
-        {
-            var tracks = connectedGuild?.Queue;
-            if (tracks != null)
+            }
+            else
+            {
                 stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying,
                     currentTrack.Title, currentTrack.Author,
                     conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
-                    currentTrack.Length.ToString(@"hh\:mm\:ss"), tracks.Count
+                    currentTrack.Length.ToString(@"hh\:mm\:ss"), tracks.Count, estimatedPlaybackTime.ToString(@"hh\:mm\:ss")
                 ));
+            }
         }
 
-        if (connectedGuild?.Queue != null)
+        if (connectedGuild.Queue != null)
             for (var index = 0; index < connectedGuild.Queue.Count; index++)
             {
                 var track = connectedGuild!.Queue[index];

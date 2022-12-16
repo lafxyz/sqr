@@ -33,7 +33,7 @@
         },
         "queue_command": {
             "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Added by {3}",
-            "now_playing": "▶ Now playing: `{0}` by `{1}` ({2} - {3})\n\nIn queue ({4}): "
+            "now_playing": "▶ Now playing: `{0}` by `{1}` ({2} - {3})\n\nIn queue {4} track(s) for {5}: "
         },
         "resume_command": { 
             "resumed": "⏯ Resumed `{0}` by `{1}`"

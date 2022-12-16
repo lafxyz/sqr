@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  bot:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    depends_on:
+      - database
+  database:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: db
+    environment:
+      "POSTGRES_PASSWORD": xd
+      "BOT_USER_NAME": bot
+      "BOT_USER_PASSWORD": test
+      "BOT_DATABASE_NAME": test
+    ports:
+      - "1337:5432"

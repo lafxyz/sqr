@@ -25,6 +25,9 @@ namespace QuickType
 
         [JsonProperty("guild")]
         public ulong Guild { get; set; }
+        
+        [JsonProperty("postgres")]
+        public Postgres Postgres { get; set; }
 
         [JsonProperty("lavalink")]
         public Lavalink Lavalink { get; set; }
@@ -43,6 +46,24 @@ namespace QuickType
 
         [JsonProperty("streamurl")] 
         public string StreamUrl { get; set; }
+    }
+    
+    public partial class Postgres
+    {
+        [JsonProperty("host")]
+        public string Host { get; set; }
+
+        [JsonProperty("port")]
+        public int Port { get; set; }
+        
+        [JsonProperty("database")]
+        public string Database { get; set; }
+        
+        [JsonProperty("username")]
+        public string Username { get; set; }
+
+        [JsonProperty("password")]
+        public string Password { get; set; }
     }
 
     public partial class Lavalink
