@@ -6,6 +6,7 @@ using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using Microsoft.Extensions.DependencyInjection;
 using SQR.Models.Music;
+using SQR.Services;
 using SQR.Translation;
 using SQR.Workers;
 
@@ -17,6 +18,8 @@ public partial class Music : ApplicationCommandsModule
 #pragma warning disable CS8618
     public Translator Translator { private get; set; }
     public QueueWorker Queue { private get; set; }
+    
+    public DatabaseService DbService { private get; set; }
 #pragma warning restore CS8618
     
     public enum EqPresets

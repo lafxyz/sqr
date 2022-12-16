@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Threading.Channels;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
@@ -6,11 +7,14 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using QuickType;
 using Serilog;
 using SQR.Commands.Dev;
+using SQR.Database;
+using SQR.Services;
 using SQR.Translation;
 using SQR.Workers;
 
@@ -32,11 +36,13 @@ public class Bot
         {
             Token = _configuration.Token,
             AutoReconnect = true,
-            LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger),
+            LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger)
         };
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<Translator>();
         serviceCollection.AddSingleton<QueueWorker>();
+        serviceCollection.AddDbContext<Context>(builder => builder.UseNpgsql($@"host={_configuration.Postgres.Host};port={_configuration.Postgres.Port};database={_configuration.Postgres.Database};username={_configuration.Postgres.Username};password={_configuration.Postgres.Password}"));
+        serviceCollection.AddScoped<DatabaseService>();
 
         var applicationCommandsConfiguration = new ApplicationCommandsConfiguration
         {
@@ -65,7 +71,9 @@ public class Bot
 
         var lavalink = await discord.UseLavalinkAsync();
         foreach (var extension in lavalink.Values)
+        {
             await extension.ConnectAsync(lavalinkConfiguration);
+        }
         
         var appCommandModule = typeof(ApplicationCommandsModule);
         var commands = Assembly.GetExecutingAssembly().GetTypes().Where(t => appCommandModule.IsAssignableFrom(t) && !t.IsNested).ToList();
