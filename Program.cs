@@ -10,7 +10,7 @@ class Program
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .WriteTo.File("output.log", rollingInterval: RollingInterval.Day)
+            .WriteTo.File("logs/output.log", rollingInterval: RollingInterval.Day)
             .CreateLogger();
         
         var config = Config.FromJson(File.ReadAllText("config.json"));
