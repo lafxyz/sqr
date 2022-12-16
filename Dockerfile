@@ -21,6 +21,6 @@ FROM postgres:15.0 AS db
 COPY ./Database/init-user-db.sh /docker-entrypoint-initdb.d/
 
 FROM ibm-semeru-runtimes:open-17-jre-focal AS lavalink
-RUN ["mkdir", "/Lavalink"]
+RUN ["mkdir", "Lavalink"]
 COPY ./Lavalink/* /Lavalink/
-CMD ["java", "-jar /Lavalink/Lavalink.jar"]
+CMD ["java", "-jar ./Lavalink/Lavalink.jar"]
