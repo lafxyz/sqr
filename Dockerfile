@@ -24,4 +24,4 @@ FROM ibm-semeru-runtimes:open-17-jre-focal AS lavalink
 RUN ["mkdir", "Lavalink"]
 COPY ./Lavalink/* /Lavalink/
 WORKDIR /Lavalink
-CMD ["java", "-jar Lavalink.jar"]
+CMD ["java -jar Lavalink.jar"]
