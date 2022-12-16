@@ -19,3 +19,8 @@ services:
       "BOT_DATABASE_NAME": test
     ports:
       - "1337:5432"
+    volumes:
+      - db-data:/db
+
+volumes:
+  db-data:
