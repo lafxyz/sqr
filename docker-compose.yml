@@ -1,21 +1,26 @@
 version: "3.9"
 services:
   bot:
-    build: 
+    container_name: bot
+    build:
       context: .
       dockerfile: Dockerfile
-      target: build
+      target: final
     depends_on:
       - database
       - lavalink
+    networks:
+      - default
   lavalink:
-    ports:
-      - "2333:2333"
+    container_name: lavalink
     build:
       context: .
       dockerfile: Dockerfile
       target: lavalink
+    networks:
+      - default
   database:
+    container_name: postgres
     build:
       context: .
       dockerfile: Dockerfile
@@ -25,10 +30,8 @@ services:
       "BOT_USER_NAME": bot
       "BOT_USER_PASSWORD": test
       "BOT_DATABASE_NAME": test
-    ports:
-      - "1337:5432"
-    volumes:
-      - db-data:/db
-
-volumes:
-  db-data:
+    networks:
+      - default
+  
+networks:
+  default: {}

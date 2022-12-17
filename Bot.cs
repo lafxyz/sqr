@@ -41,7 +41,11 @@ public class Bot
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<Translator>();
         serviceCollection.AddSingleton<QueueWorker>();
-        serviceCollection.AddDbContext<Context>(builder => builder.UseNpgsql($@"host={_configuration.Postgres.Host};port={_configuration.Postgres.Port};database={_configuration.Postgres.Database};username={_configuration.Postgres.Username};password={_configuration.Postgres.Password}"));
+        serviceCollection.AddDbContext<Context>(builder =>
+        {
+            builder.UseNpgsql(
+                    $@"host={_configuration.Postgres.Host};port={_configuration.Postgres.Port};database={_configuration.Postgres.Database};username={_configuration.Postgres.Username};password={_configuration.Postgres.Password}");
+        });
         serviceCollection.AddScoped<DatabaseService>();
 
         var applicationCommandsConfiguration = new ApplicationCommandsConfiguration

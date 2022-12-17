@@ -20,8 +20,8 @@ ENTRYPOINT ["dotnet", "SQR.dll"]
 FROM postgres:15.0 AS db
 COPY ./Database/init-user-db.sh /docker-entrypoint-initdb.d/
 
-FROM ibm-semeru-runtimes:open-17-jre-focal AS lavalink
-#RUN ["mkdir", "Lavalink"]
-COPY ./Lavalink Lavalink
+FROM openjdk:17 AS lavalink
 WORKDIR Lavalink
-ENTRYPOINT ["java", "-jar Lavalink.jar"]
+COPY Lavalink /Lavalink
+EXPOSE 2333
+CMD ["java", "-jar", "Lavalink.jar"]
