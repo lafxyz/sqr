@@ -1,5 +1,4 @@
 #!/bin/bash
-docker-compose up --rmi all
 control_c() {
     docker-compose down
     exit
@@ -7,5 +6,8 @@ control_c() {
 
 trap control_c SIGINT
 
-while true ; do
+while true ; do 
+   docker-compose up --rmi all | while read line ; do
+   PID=$!
+   echo $line 
 done
