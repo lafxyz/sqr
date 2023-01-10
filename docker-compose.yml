@@ -7,8 +7,8 @@ services:
       dockerfile: Dockerfile
       target: final
     depends_on:
-      - database
       - lavalink
+      - database
     networks:
       - default
   lavalink:
