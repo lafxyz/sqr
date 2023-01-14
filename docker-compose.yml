@@ -10,7 +10,7 @@ services:
       target: final
     depends_on:
       - lavalink
-      - database
+      - postgres
     networks:
       - default
   lavalink:
