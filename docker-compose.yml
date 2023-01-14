@@ -10,7 +10,7 @@ services:
       - lavalink
       - postgres
     networks:
-      - default
+      - sqr
   lavalink:
     container_name: lavalink
     build:
@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
       target: lavalink
     networks:
-      - default
+      - sqr
   postgres:
     container_name: postgres
     build:
@@ -34,6 +34,6 @@ services:
       - sqr
   
 networks:
-  default: {
+  sqr: {
       external: true
   }
