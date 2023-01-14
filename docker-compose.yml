@@ -2,6 +2,8 @@ version: "3.9"
 services:
   bot:
     container_name: bot
+    links:
+      - "bot"
     build:
       context: .
       dockerfile: Dockerfile
@@ -13,14 +15,18 @@ services:
       - default
   lavalink:
     container_name: lavalink
+    links:
+      - "lavalink"
     build:
       context: .
       dockerfile: Dockerfile
       target: lavalink
     networks:
       - default
-  database:
+  postgres:
     container_name: postgres
+    links:
+      - "postgres"
     build:
       context: .
       dockerfile: Dockerfile
