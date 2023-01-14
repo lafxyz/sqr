@@ -35,6 +35,5 @@ services:
   
 networks:
   default: {
-      external: true,
-      internal: true
+      external: true
   }
