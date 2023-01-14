@@ -2,8 +2,6 @@ version: "3.9"
 services:
   bot:
     container_name: bot
-    links:
-      - "bot"
     build:
       context: .
       dockerfile: Dockerfile
