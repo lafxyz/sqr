@@ -31,7 +31,7 @@ services:
       "BOT_USER_PASSWORD": test
       "BOT_DATABASE_NAME": test
     networks:
-      - default
+      - sqr
   
 networks:
   default: {
