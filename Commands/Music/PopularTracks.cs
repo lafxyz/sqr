@@ -13,7 +13,7 @@ namespace SQR.Commands.Music;
 
 public partial class Music
 {
-    [SlashCommand("popular", "Returns list of most played tracks in the bot")]
+    [SlashCommand("populartracks", "Returns list of most played tracks in the bot")]
     public async Task PopularTracksCommand(InteractionContext context)
     {
         await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder()
