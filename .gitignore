@@ -11,6 +11,7 @@ config.json
 Lavalink/*.jar
 Lavalink/logs
 Lavalink/application.yml
+Lavalink/application-docker.yml
 Lavalink/plugins
 .idea/*
 .fleet/

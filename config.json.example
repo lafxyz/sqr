@@ -1,21 +1,28 @@
 {
     "token": "",
     "guild": 0,
+    "fallback_language": "EN",
+    "developer_id": 0
+    "docker": {
+        "enabled": true,
+        "LavalinkHost": "lavalink",
+        "postgresHost": "postgres"
+    },
     "postgres": {
-          "host": "localhost",
-          "port": 5432,
-          "database": "",
-          "username": "",
-          "password": ""
-        },
+        "host": "localhost",
+        "port": 5432,
+        "database": "",
+        "username": "",
+        "password": ""
+    },
     "lavalink": {
         "host": "127.0.0.1",
         "port": 2333,
         "password": ""
     },
-    "activities":[
-        { "type": "Playing", "name": "" },
-        { "type": "ListeningTo", "name": "" },
+    "activities": [
+        { "type": "Playing", "name": "Music" },
+        { "type": "ListeningTo", "name": "Music" },
         { "type": "Watching", "name": "" },
         { "type": "Streaming", "name": "", "streamurl": "https://twitch.tv/channelname" }
     ]

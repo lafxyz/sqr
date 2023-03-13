@@ -1,12 +1,13 @@
-using System.ComponentModel.DataAnnotations;
+using Serilog;
+using Serilog.Core;
 
 namespace SQR.Workers;
 
 public class BackgroundTask
 {
-    private PeriodicTimer _timer;
+    private readonly PeriodicTimer _timer;
 
-    private readonly CancellationTokenSource _cts = new();
+    private CancellationTokenSource _cts = new();
     private Task? _task;
 
     public BackgroundTask(TimeSpan interval)
@@ -14,12 +15,19 @@ public class BackgroundTask
         _timer = new PeriodicTimer(interval);
     }
 
-    public void Start(Action action)
+    public void AssignAndStartTask(Action action)
     {
-        _task = Do(action);
+        if (_task is not null)
+        {
+            Log.Logger.Warning("Attempt to assign and start new task when task is already assigned.");
+            return;
+        }
+        
+        _cts = new CancellationTokenSource();
+        _task = RepeatTask(action);
     }
 
-    private async Task Do(Action action)
+    private async Task RepeatTask(Action action)
     {
         try
         {
@@ -28,18 +36,30 @@ public class BackgroundTask
                 action.Invoke();
             }
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Cancelled");
+        }
     }
-
+    
     public async Task StopAsync()
     {
         if (_task is null)
         {
+            Log.Logger.Warning("Attempt to stop a task that does not exist.");
             return;
         }
-        
-        _cts.Cancel();
+
+        try
+        {
+            _cts.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+            Log.Logger.Warning("Attempt to stop a task that already stopped.");
+        }
         await _task;
+        _task = null;
         _cts.Dispose();
     }
 }

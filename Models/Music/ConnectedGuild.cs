@@ -11,6 +11,8 @@ public class ConnectedGuild
     public QueueWorker.LoopingState Looping = QueueWorker.LoopingState.NoLoop;
     public List<Track> Queue = new();
     public InteractionContext? Context;
+    public bool IsPaused = false;
+    public Commands.Music.Music.EqPresets Preset = Commands.Music.Music.EqPresets.Default;
     public int Volume;
     public bool IsFirstTrackReceived = false;
     public bool WaitingForTracks = false;

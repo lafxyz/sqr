@@ -21,7 +21,7 @@ public partial class Music
             IsEphemeral = true
         });
         
-        var language = Translator.Languages[Translator.LanguageCode.EN].Music;
+        var language = Translator.Languages[Translator.FallbackLanguage].Music;
 
         if (Translator.LocaleMap.ContainsKey(context.Locale))
         {

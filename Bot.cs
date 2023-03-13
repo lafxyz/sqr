@@ -1,50 +1,54 @@
 using System.Reflection;
-using System.Threading.Channels;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.Entities;
-using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using QuickType;
 using Serilog;
 using SQR.Commands.Dev;
+using SQR.Commands.Music;
 using SQR.Database;
+using SQR.Expections;
 using SQR.Services;
 using SQR.Translation;
 using SQR.Workers;
+using Dev = SQR.Translation.Dev;
 
 namespace SQR;
 
 public class Bot
 {
-    public Config Configuration => _configuration;
-    private Config _configuration;
+    public static Config Config => _config;
+    private static Config _config;
 
-    public Bot(Config configuration)
+    public Bot(Config config)
     {
-        _configuration = configuration;
+        _config = config;
     }
 
     public async Task Login()
     {
         var discordConfiguration = new DiscordConfiguration
         {
-            Token = _configuration.Token,
+            Token = _config.Token,
             AutoReconnect = true,
-            LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger)
+            LoggerFactory = new LoggerFactory().AddSerilog(Log.Logger),
+            Intents = DiscordIntents.All
         };
+        var postgresHost = _config.Docker.Enabled ? _config.Docker.PostgresHost : _config.Postgres.Host;
+        
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<Translator>();
         serviceCollection.AddSingleton<QueueWorker>();
+        serviceCollection.AddSingleton<ExceptionHandler>();
         serviceCollection.AddDbContext<Context>(builder =>
         {
             builder.UseNpgsql(
-                    $@"host={_configuration.Postgres.Host};port={_configuration.Postgres.Port};database={_configuration.Postgres.Database};username={_configuration.Postgres.Username};password={_configuration.Postgres.Password}");
+                    $@"host={postgresHost};port={_config.Postgres.Port};database={_config.Postgres.Database};username={_config.Postgres.Username};password={_config.Postgres.Password}");
         });
         serviceCollection.AddScoped<DatabaseService>();
 
@@ -58,13 +62,13 @@ public class Bot
 
         var lavalinkEndpoint = new ConnectionEndpoint
         {
-            Hostname = _configuration.Lavalink.Host,
-            Port = _configuration.Lavalink.Port
+            Hostname = _config.Docker.Enabled ? _config.Docker.LavalinkHost : _config.Lavalink.Host,
+            Port = _config.Lavalink.Port
         };
 
         var lavalinkConfiguration = new LavalinkConfiguration
         {
-            Password = _configuration.Lavalink.Password,
+            Password = _config.Lavalink.Password,
             RestEndpoint = lavalinkEndpoint,
             SocketEndpoint = lavalinkEndpoint
         };
@@ -100,7 +104,7 @@ public class Bot
             {
                 if (guildCommands.Contains(command))
                 {
-                    applicationCommands.RegisterGuildCommands(command, _configuration.Guild);
+                    applicationCommands.RegisterGuildCommands(command, _config.Guild);
                     discord.Logger.LogInformation("{Command} registered as guild command", command);
                     continue;
                 }
@@ -110,24 +114,28 @@ public class Bot
             }
         }
         discord.Logger.LogInformation("Application commands registered successfully");
+
+        discord.VoiceStateUpdated += QueueWorker.VoiceStateUpdate;
         
-        discord.Ready += (_, _) =>
+        discord.Ready += async (client, _) =>
         {
+            _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true); 
+
             var activityIndex = 0;
 
             var activityTask = new BackgroundTask(TimeSpan.FromSeconds(30));
-            activityTask.Start(async () =>
+            activityTask.AssignAndStartTask(async () =>
             {
-                if (_configuration?.Activities is null) return;
-                if (activityIndex >= _configuration?.Activities.Count) activityIndex = 0;
-                var activity = _configuration?.Activities[activityIndex];
-                if (string.IsNullOrWhiteSpace(activity?.Name)) throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
+                if (_config?.Activities is null) return;
+                if (activityIndex >= _config.Activities.Count) activityIndex = 0;
+                var activity = _config.Activities[activityIndex];
+                if (string.IsNullOrWhiteSpace(activity?.Name)) 
+                    throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
                 await discord.UpdateStatusAsync(new DiscordActivity { Name = activity.Name, ActivityType = activity.Type, StreamUrl = activity.StreamUrl });
 
                 activityIndex += 1;
             });
             discord.Logger.LogInformation("Ready to use!");
-            return Task.CompletedTask;
         };
 
         await Task.Delay(-1);
@@ -139,10 +147,11 @@ public class Bot
         return Task.CompletedTask;
     }
     
-    private static Task SlashCommandErrored(ApplicationCommandsExtension sender, SlashCommandErrorEventArgs e)
+    private static async Task SlashCommandErrored(ApplicationCommandsExtension sender, SlashCommandErrorEventArgs e)
     {
-        Log.Logger.Error(e.Exception,$"Slash command errored: {e.Exception.Message} | Command name: {e.Context.CommandName} | Interaction ID: {e.Context.InteractionId}");
-        return Task.CompletedTask;
+        var scope = e.Context.Services.CreateScope();
+        var exceptionHandler = scope.ServiceProvider.GetService<ExceptionHandler>();
+        await exceptionHandler!.HandleSlashException(sender, e);
     }
     
     private static Task ContextMenuCommandExecuted(ApplicationCommandsExtension sender, ContextMenuExecutedEventArgs e)

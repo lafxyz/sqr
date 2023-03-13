@@ -5,6 +5,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using Microsoft.Extensions.DependencyInjection;
+using SQR.Expections;
 using SQR.Translation;
 using SQR.Workers;
 
@@ -15,7 +16,7 @@ public partial class Music
     [SlashCommand("shuffle", "Shuffles queue")]
     public async Task ShuffleCommand(InteractionContext context)
     {
-        var language = Translator.Languages[Translator.LanguageCode.EN].Music;
+        var language = Translator.Languages[Translator.FallbackLanguage].Music;
 
         if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
@@ -26,23 +27,13 @@ public partial class Music
         var node = lava.ConnectedNodes.Values.First();
         var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
         
-        if (conn == null)
-        {
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
-                {
-                    IsEphemeral = true,
-                    Content = language.General.LavalinkIsNotConnected
-                });
-            return;
-        }
+        
 
         Queue.Shuffle(context);
         
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
-                IsEphemeral = true,
                 Content = language.ShuffleCommand.Shuffled
             });
     }

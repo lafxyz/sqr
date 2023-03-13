@@ -4,6 +4,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using Microsoft.Extensions.DependencyInjection;
+using SQR.Expections;
 using SQR.Translation;
 using SQR.Workers;
 
@@ -14,7 +15,7 @@ public partial class Music
     [SlashCommand("loop", "Defines loop mode")]
     public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] QueueWorker.LoopingState state)
     {
-        var language = Translator!.Languages[Translator.LanguageCode.EN].Music;
+        var language = Translator.Languages[Translator.FallbackLanguage].Music;
 
         if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
@@ -24,18 +25,7 @@ public partial class Music
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
         var conn = node.GetGuildConnection(context.Member.VoiceState?.Guild);
-        
-        if (conn == null)
-        {
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
-                {
-                    IsEphemeral = true,
-                    Content = language.General.LavalinkIsNotConnected
-                });
-            return;
-        }
-        
+
         Queue.SetLoopState(context, state);
 
         var map = new Dictionary<QueueWorker.LoopingState, string>
@@ -48,7 +38,6 @@ public partial class Music
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
-                IsEphemeral = true,
                 Content = map[state]
             });
     }

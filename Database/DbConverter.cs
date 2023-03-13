@@ -1,8 +1,7 @@
 using SQR.Database.Music;
 using SQR.Models.Music;
-using SQR.Workers;
 
-namespace SQR;
+namespace SQR.Database;
 
 public static class DbConverter
 {

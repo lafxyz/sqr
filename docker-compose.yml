@@ -11,6 +11,7 @@ services:
       - postgres
     networks:
       - sqr
+
   lavalink:
     container_name: lavalink
     build:
@@ -19,6 +20,7 @@ services:
       target: lavalink
     networks:
       - sqr
+
   postgres:
     container_name: postgres
     build:
@@ -32,6 +34,11 @@ services:
       "BOT_DATABASE_NAME": test
     networks:
       - sqr
+    volumes:
+      - database:/var/lib/postgresql/data
   
 networks:
   sqr: {}
+  
+volumes:
+  database:
