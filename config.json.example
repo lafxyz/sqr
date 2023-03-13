@@ -5,6 +5,7 @@
     "developer_id": 0
     "docker": {
         "enabled": true,
+        "startup_delay": 3,
         "LavalinkHost": "lavalink",
         "postgresHost": "postgres"
     },
