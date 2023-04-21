@@ -1,15 +1,12 @@
+using System.ComponentModel;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Common;
-using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Lavalink;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SQR.Commands.Music;
 using SQR.Database;
-using SQR.Database.Music;
 using SQR.Models.Music;
 using SQR.Services;
 using SQR.Translation;
@@ -55,15 +52,8 @@ public class QueueWorker
     {
         var context = connectedGuild.Context;
 
-        var language = _translator.Languages[Translator.LanguageCode.EN].Music;
-        var isSlavic = _translator.Languages[Translator.LanguageCode.EN].IsSlavicLanguage;
-
-        if (context?.Locale != null && _translator.LocaleMap.ContainsKey(context.Locale))
-        {
-            language = _translator.Languages[_translator.LocaleMap[context.Locale]].Music;
-            isSlavic = _translator.Languages[_translator.LocaleMap[context.Locale]].IsSlavicLanguage;
-        }
-
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
+        var music = language.Music;
         if (connection.IsConnected == false)
         {
             await DisconnectAsync(connection);
@@ -81,22 +71,19 @@ public class QueueWorker
             if (connectedGuild.WaitingForTracks) return;
             
             const int seconds = 60;
-            if (context is not null)
+            if (language.IsSlavicLanguage)
             {
-                if (isSlavic)
-                {
-                    await context.Channel.SendMessageAsync(string.Format(
-                        language.PlayCommand.LeavingInNSeconds, seconds,
-                        Translator.WordForSlavicLanguage(seconds,
-                            language.SlavicParts.OneSecond,
-                            language.SlavicParts.TwoSeconds,
-                            language.SlavicParts.FiveSeconds)));
-                }
-                else
-                {
-                    await context.Channel.SendMessageAsync(
-                        string.Format(language.PlayCommand.LeavingInNSeconds, seconds));
-                }
+                await context.Channel.SendMessageAsync(string.Format(
+                    music.QueueWorker.LeavingInNSeconds, seconds,
+                    Translator.WordForSlavicLanguage(seconds,
+                        music.SlavicParts.OneSecond,
+                        music.SlavicParts.TwoSeconds,
+                        music.SlavicParts.FiveSeconds)));
+            }
+            else
+            {
+                await context.Channel.SendMessageAsync(
+                    string.Format(music.QueueWorker.LeavingInNSeconds, seconds));
             }
 
             connectedGuild.WaitingForTracks = true;
@@ -114,8 +101,7 @@ public class QueueWorker
             if (connectedGuild.Queue.Any() == false)
             {
                 await DisconnectAsync(connection);
-                if (context != null)
-                    await context.Channel.SendMessageAsync(language.PlayCommand.EmptyQueue);
+                await context.Channel.SendMessageAsync(music.QueueWorker.EmptyQueue);
             }
         }
         else
@@ -129,12 +115,11 @@ public class QueueWorker
             if (connectedGuild.IsFirstTrackReceived == false) 
                 connectedGuild.IsFirstTrackReceived = true;
 
-            if (context is not null)
-                await context.Channel.SendMessageAsync(
-                    string.Format(language.PlayCommand.NowPlaying, toPlay.LavalinkTrack.Title,
-                        toPlay.LavalinkTrack.Author,
-                        toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")) +
-                    $"{(connection.CurrentState.CurrentTrack!.SourceName == "spotify" ? language.PlayCommand.IfPlaybackStopped : "")}");
+            await context.Channel.SendMessageAsync(
+                string.Format(music.QueueWorker.NowPlaying, toPlay.LavalinkTrack.Title,
+                    toPlay.LavalinkTrack.Author,
+                    toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")) +
+                $"{(connection.CurrentState.CurrentTrack!.SourceName == "spotify" ? music.QueueWorker.IfPlaybackStopped : "")}");
             await Task.Delay(1000);
         }
     }

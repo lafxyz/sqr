@@ -1,14 +1,10 @@
-using System.Formats.Asn1;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using DisCatSharp.Exceptions;
 using Serilog;
-using SQR.Database;
 using SQR.Extenstions;
-using SQR.Services;
 using SQR.Translation;
 
 namespace SQR.Expections;
@@ -29,8 +25,6 @@ public class ExceptionHandler
         { 
             language = _translator.Languages[value];
         }
-
-        Console.WriteLine($"Got: {e.Exception}");
         
         if (await HandleLavaLinkIsNotConnected(e, language)) return;
         if (await HandleNotInVoiceChannel(e, language)) return;

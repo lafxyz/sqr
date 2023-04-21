@@ -2,12 +2,12 @@
     "is_slavic_language": false,
     "exceptions": {
         "got_exception": "You ran into an exception!",
-        "client_is_not_connected": ":x: Client is not connected",
-        "different_voice": ":x: You're in different voice channel",
-        "lavalink_is_not_connected": ":x: The Lavalink connection is not established",
-        "not_in_voice": ":x: You're not in voice channel",
-        "track_search_failed": ":x: Couldn't find any tracks for: {0}",
-        "nothing_is_playing": ":x: Nothing is playing"
+        "client_is_not_connected": "❌ Client is not connected",
+        "different_voice": "❌ You're in different voice channel",
+        "lavalink_is_not_connected": "❌ The Lavalink connection is not established",
+        "not_in_voice": "❌ You're not in voice channel",
+        "track_search_failed": "❌ Couldn't find any tracks for: {0}",
+        "nothing_is_playing": "❌ Nothing is playing"
     },
     "generic": {
         "yes": "Yes",
@@ -16,25 +16,32 @@
         "external_error": "An external error happened: `{0}`"
     },
     "music": {
-        "equalizer_command": {
-            "gain_updated": "✅ Band {0} gain set to {1}"
-        },
-        "loop_command": {
-            "no_loop": "✅ Loop disabled",
-            "loop_track": ":repeat_one: Single track loop enabled",
-            "loop_queue": ":repeat: Queue loop enabled"
-        },
-        "pause_command": {
-            "paused": "⏸️ Paused `{0}` by `{1}`"
-        },
-        "play_command": {
-            "added_to_queue": "✅ Added to queue **{0}** by **{1}** `{2}`",
-            "playlist_added_to_queue": "✅ Successfully added to queue `{0}` tracks from **{1}**:",
-            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
-            "empty_queue": "Leaving :wave:",
+        "queue_worker": {
+            "empty_queue": "Leaving 👋🏻",
             "leaving_in_n_seconds": "The queue is empty, if you don't add tracks within {0} second(s), I will leave the channel!",
             "now_playing": "▶ Now playing: **{0}** by **{1}** `{2}`",
             "if_playback_stopped": "\n\n⚠️ If playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead"
+        },
+        "equalizer_command": {
+            "success": "✅ Equalizer updated",
+            "gain_updated": "Band {0} gain set to {1}"
+        },
+        "loop_command": {
+            "success": "✅ Loop mode changed successfully",
+            "no_loop": "♿ Loop disabled",
+            "loop_track": "🔂 Single track loop enabled",
+            "loop_queue": "🔁 Queue loop enabled"
+        },
+        "pause_command": {
+            "success": "✅ Action completed successfully",
+            "paused": "⏸️ Paused `{0}` by `{1}`"
+        },
+        "play_command": {
+            "added_to_queue_single_success": "✅ Track successfully added to queue",
+            "added_to_queue_single_description": "🎵 **{0}** by **{1}**\n`{2}`",
+            "added_to_queue_playlist_success": "✅ Playlist `{0}` successfully added to queue",
+            "added_to_queue_playlist_description": "{0} Track(s) has been added\n",
+            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n"
         },
         "queue_command": {
             "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Added by {3}",
@@ -44,7 +51,7 @@
             "resumed": "⏯ Resumed `{0}` by `{1}`"
         },
         "seek_command": {
-            "parse_failed": ":x: Couldn't parse time. Please follow this format `5m1s`",
+            "parse_failed": "❌ Couldn't parse time. Please follow this format `5m1s`",
             "seeked": ":fast_forward: Seeked to `{0}` `{1}` by `{2}`"
         },
         "shuffle_command": {
@@ -60,7 +67,8 @@
             "volume_updated": "✅ Volume changed to {0}"
         },
         "equalizer_preset_command": {
-            "preset_updated": "✅ Equalizer preset changed to {0}"
+            "success": "✅ Successfully changed equalizer preset",
+            "preset_updated": "Equalizer preset changed to {0}"
         },
         "status_command": {
             "title_format": "{0} by {1}",
@@ -85,7 +93,7 @@
     },
     "dev": {
         "general": {
-            "no_access": ":x: You don't have access to this command!"
+            "no_access": "❌ You don't have access to this command!"
         },
         "reload_command":{
             "reloaded": "✅ Reloaded successfully"

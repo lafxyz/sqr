@@ -2,7 +2,6 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using Microsoft.Extensions.DependencyInjection;
 using SQR.Translation;
 
 namespace SQR.Commands.Dev;

@@ -6,6 +6,6 @@ namespace SQR.Translation.Music;
 
 public class PauseCommand
 {
-    [JsonProperty("paused")]
-    public string Paused { get; set; }
+    [JsonProperty("success")] public string Success { get; set; }
+    [JsonProperty("paused")] public string Paused { get; set; }
 }

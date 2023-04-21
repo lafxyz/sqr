@@ -1,12 +1,9 @@
+using System.Reflection;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
-using DisCatSharp.Entities;
-using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
-using Microsoft.Extensions.DependencyInjection;
 using SQR.Expections;
-using SQR.Models.Music;
 using SQR.Services;
 using SQR.Translation;
 using SQR.Workers;
@@ -16,14 +13,40 @@ public partial class Music : ApplicationCommandsModule
 {
     public Music(DatabaseService dbService, QueueWorker queue, Translator translator)
     {
-        DbService = dbService;
-        Queue = queue;
-        Translator = translator;
+        _dbService = dbService;
+        _queue = queue;
+        _translator = translator;
+        
+        SetupExcludes();
     }
-    
-    private Translator Translator { get; }
-    private QueueWorker Queue { get; }
-    private DatabaseService DbService { get; }
+
+    private void SetupExcludes()
+    {
+        var musicType = typeof(Music);
+        _excludeVoiceState = new List<string>
+        {
+            GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
+        };
+
+        _excludeIsConnected = new List<string>
+        {
+            GetSlashCommandAttribute(musicType, nameof(PlayCommand)).Name,
+            GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
+        };
+
+        _excludeDifferentChannel = new List<string>
+        {
+            GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
+        };
+    }
+
+    private Translator _translator { get; }
+    private QueueWorker _queue { get; }
+    private DatabaseService _dbService { get; }
+
+    private List<string> _excludeVoiceState;
+    private List<string> _excludeIsConnected;
+    private List<string> _excludeDifferentChannel;
 
     public enum EqPresets
     {
@@ -37,48 +60,46 @@ public partial class Music : ApplicationCommandsModule
         Default
     }
     
-    public override async Task<bool> BeforeSlashExecutionAsync(InteractionContext context)
+    public override Task<bool> BeforeSlashExecutionAsync(InteractionContext context)
     {
-        var commandFull = context.CommandName + "command";
         var voiceState = context.Member.VoiceState;
 
-        var lava = context.Client.GetLavalink();
-        var node = lava.ConnectedNodes.Values.First();
-        var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
+        var conn = GetConnection(context);
 
         if (voiceState is null)
         {
-            var exclude = new[]
-            {
-                nameof(PopularTracksCommand).ToLower()
-            };
-            
-            if (exclude.Contains(commandFull) == false)
+            if (_excludeVoiceState.Contains(context.CommandName) == false)
                 throw new NotInVoiceChannelException();
         }
 
-        if (conn is null)
+        if (conn == null)
         {
-            var exclude = new[]
-            {
-                nameof(PlayCommand).ToLower(),
-                nameof(PopularTracksCommand).ToLower()
-            };
-            if (exclude.Contains(commandFull) == false)
+            if (_excludeIsConnected.Contains(context.CommandName) == false)
                 throw new ClientIsNotConnectedException();
         }
         
 
-        if (context.Guild.CurrentMember.VoiceState != null && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
+        if (context.Guild.CurrentMember.VoiceState != null 
+            && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
         {
-            var exclude = new[]
-            {
-                nameof(PopularTracksCommand).ToLower()
-            };
-            if (exclude.Contains(commandFull) == false)
+            if (_excludeDifferentChannel.Contains(context.CommandName) == false)
                 throw new DifferentVoiceChannelException();
         }
 
-        return true;
+        return Task.FromResult(true);
+    }
+
+    private LavalinkGuildConnection? GetConnection(BaseContext context)
+    {
+        var lava = context.Client.GetLavalink();
+        var node = lava.ConnectedNodes.Values.First();
+        return node.GetGuildConnection(context.Guild);
+    }
+
+    private SlashCommandAttribute GetSlashCommandAttribute(Type type, string command)
+    {
+        var attributes = type.GetMethod(command)?.GetCustomAttributes(false);
+        
+        return (SlashCommandAttribute)attributes!.First(x => x is SlashCommandAttribute);
     }
 }

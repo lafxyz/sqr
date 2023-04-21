@@ -1,5 +1,4 @@
 using Serilog;
-using Serilog.Core;
 
 namespace SQR.Workers;
 

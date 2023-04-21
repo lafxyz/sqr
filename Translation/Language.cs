@@ -18,6 +18,17 @@ namespace SQR.Translation
 
     public partial class Language
     {
+        public static Language GetLanguageOrFallback(Translator translator, string locale)
+        {
+            var language = translator.Languages[Translator.FallbackLanguage];
+
+            if (translator.LocaleMap.TryGetValue(locale, out var languageCode))
+            {
+                language = translator.Languages[languageCode];
+            }
+
+            return language;
+        }
         public static Language FromJson(string json) => JsonConvert.DeserializeObject<Language>(json, Converter.Settings) ?? throw new ArgumentException(null, nameof(json));
     }
 

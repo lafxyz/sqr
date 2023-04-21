@@ -6,6 +6,6 @@ namespace SQR.Translation.Music;
 
 public class EqualizerPresetCommand
 {
-    [JsonProperty("preset_updated")]
-    public string PresetUpdated { get; set; }
+    [JsonProperty("success")] public string Success { get; set; }
+    [JsonProperty("preset_updated")] public string PresetUpdated { get; set; }
 }

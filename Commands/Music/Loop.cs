@@ -2,9 +2,7 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using DisCatSharp.Lavalink;
-using Microsoft.Extensions.DependencyInjection;
-using SQR.Expections;
+using SQR.Extenstions;
 using SQR.Translation;
 using SQR.Workers;
 
@@ -15,30 +13,24 @@ public partial class Music
     [SlashCommand("loop", "Defines loop mode")]
     public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] QueueWorker.LoopingState state)
     {
-        var language = Translator.Languages[Translator.FallbackLanguage].Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
 
-        if (Translator.LocaleMap.ContainsKey(context.Locale))
-        {
-            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
-        }
-
-        var lava = context.Client.GetLavalink();
-        var node = lava.ConnectedNodes.Values.First();
-        var conn = node.GetGuildConnection(context.Member.VoiceState?.Guild);
-
-        Queue.SetLoopState(context, state);
+        _queue.SetLoopState(context, state);
 
         var map = new Dictionary<QueueWorker.LoopingState, string>
         {
-            { QueueWorker.LoopingState.NoLoop, language.LoopCommand.NoLoop },
-            { QueueWorker.LoopingState.LoopTrack, language.LoopCommand.LoopTrack },
-            { QueueWorker.LoopingState.LoopQueue, language.LoopCommand.LoopQueue }
+            { QueueWorker.LoopingState.NoLoop, music.LoopCommand.NoLoop },
+            { QueueWorker.LoopingState.LoopTrack, music.LoopCommand.LoopTrack },
+            { QueueWorker.LoopingState.LoopQueue, music.LoopCommand.LoopQueue }
         };
 
+        var embed = new DiscordEmbedBuilder()
+            .AsSQRDefault()
+            .WithTitle(music.LoopCommand.Success)
+            .WithDescription(map[state]);
+
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder
-            {
-                Content = map[state]
-            });
+            new DiscordInteractionResponseBuilder()
+                .AddEmbed(embed));
     }
 }

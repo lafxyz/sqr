@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using DisCatSharp.Entities;
-using DisCatSharp.Lavalink;
 
 namespace SQR.Database.Music;
 

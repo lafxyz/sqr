@@ -1,11 +1,12 @@
+using System.Diagnostics;
 using System.Text;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using DisCatSharp.Exceptions;
 using DisCatSharp.Lavalink;
 using SQR.Expections;
+using SQR.Extenstions;
 using SQR.Translation;
 using SQR.Workers;
 
@@ -18,68 +19,86 @@ public partial class Music
         [Option("SearchSource", "Use different search engine")]
         QueueWorker.SearchSources source = QueueWorker.SearchSources.YouTube)
     {
-        var isSlavic = Translator.Languages[Translator.FallbackLanguage].IsSlavicLanguage;
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
         
-        var language = Translator.Languages[Translator.LanguageCode.EN];
-
-        if (Translator.LocaleMap.ContainsKey(context.Locale))
-        {
-            language = Translator.Languages[Translator.LocaleMap[context.Locale]];
-            isSlavic = Translator.Languages[Translator.LocaleMap[context.Locale]].IsSlavicLanguage;
-        }
-
         var music = language.Music;
 
         await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-        await Queue.TryConnectAsync(context);
+        await _queue.TryConnectAsync(context);
 
-        var loadResult = await Queue.AddAsync(context, search, source);
+        var loadResult = await _queue.AddAsync(context, search, source);
 
         if (loadResult.LavalinkLoadResult.LoadResultType is LavalinkLoadResultType.LoadFailed
             or LavalinkLoadResultType.NoMatches)
         {
             throw new TrackSearchFailedException(search, true);
         }
+        
+        /*
+         *  ✅ Playlist `name` added to queue
+         *  Track name
+         *  Author `time`
+         *  ...
+         */
+        
+        /*
+         *  ✅ Track successfully added to queue
+         *  
+         * 
+         */
 
         if (loadResult.IsPlaylist == false)
         {
             var track = loadResult.LavalinkLoadResult.Tracks.First();
-            await context.EditResponseAsync(new DiscordWebhookBuilder
-            {
-                Content = string.Format(music.PlayCommand.AddedToQueue,
-                    track.Title, track.Author, track.Length.ToString(@"hh\:mm\:ss"))
-            });
+
+            var embedSingle = new DiscordEmbedBuilder()
+                .AsSQRDefault()
+                .WithTitle(music.PlayCommand.AddedToQueueSingleSuccess)
+                .WithDescription(
+                    string.Format(music.PlayCommand.AddedToQueueSingleDescription,
+                        track.Title, track.Author, track.Length.ToString(@"hh\:mm\:ss"))
+                    );
+
+            await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embedSingle));
             return;
         }
 
         StringBuilder stringBuilder;
 
-        if (isSlavic)
+        var embed = new DiscordEmbedBuilder()
+            .AsSQRDefault()
+            .WithTitle(string.Format(music.PlayCommand.AddedToQueuePlaylistSuccess,
+            loadResult.LavalinkLoadResult.PlaylistInfo.Name));
+
+        if (language.IsSlavicLanguage)
         {
             var parts = music.SlavicParts;
-            stringBuilder = new StringBuilder(string.Format(music.PlayCommand.PlaylistAddedToQueue,
-                loadResult.LavalinkLoadResult.Tracks.Count,
-                Translator.WordForSlavicLanguage(loadResult.LavalinkLoadResult.Tracks.Count, parts.OneTrack,
-                    parts.TwoTracks, parts.FiveTracks),
-                loadResult.LavalinkLoadResult.PlaylistInfo.Name));
+
+            stringBuilder = new StringBuilder(
+                string.Format(music.PlayCommand.AddedToQueuePlaylistDescription,
+                    loadResult.LavalinkLoadResult.Tracks.Count,
+                    Translator.WordForSlavicLanguage(loadResult.LavalinkLoadResult.Tracks.Count, parts.OneTrack,
+                        parts.TwoTracks, parts.FiveTracks))
+            );
         }
         else
         {
-            stringBuilder = new StringBuilder(string.Format(music.PlayCommand.PlaylistAddedToQueue,
-                loadResult.LavalinkLoadResult.Tracks.Count, loadResult.LavalinkLoadResult.PlaylistInfo.Name));
+            stringBuilder = new StringBuilder(
+                string.Format(music.PlayCommand.AddedToQueuePlaylistDescription,
+                    loadResult.LavalinkLoadResult.Tracks.Count)
+                );
         }
 
         foreach (var content in loadResult.LavalinkLoadResult.Tracks.Select(loadResultTrack =>
                          string.Format(music.PlayCommand.AddedToQueueMessagePattern, loadResultTrack.Title,
-                             loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author))
+                                       loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author))
                      .Where(content => stringBuilder.Length + content.Length <= 2000))
         {
-            stringBuilder.Append(content);
+            stringBuilder.Append(content);                 
         }
 
-        await context.EditResponseAsync(new DiscordWebhookBuilder
-        {
-            Content = stringBuilder.ToString()
-        });
+        embed.WithDescription(stringBuilder.ToString());
+
+        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
     }
 }

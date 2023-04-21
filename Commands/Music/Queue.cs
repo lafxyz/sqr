@@ -4,10 +4,7 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
-using Microsoft.Extensions.DependencyInjection;
-using SQR.Expections;
 using SQR.Translation;
-using SQR.Workers;
 
 namespace SQR.Commands.Music;
 
@@ -16,15 +13,8 @@ public partial class Music
     [SlashCommand("queue", "Display queue")]
     public async Task QueueCommand(InteractionContext context)
     {
-        var isSlavic = Translator.Languages[Translator.FallbackLanguage].IsSlavicLanguage;
-
-        var language = Translator.Languages[Translator.FallbackLanguage].Music;
-
-        if (Translator!.LocaleMap.ContainsKey(context.Locale))
-        {
-            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
-            isSlavic = Translator.Languages[Translator.LocaleMap[context.Locale]].IsSlavicLanguage;
-        }
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
+        var music = language.Music;
         
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
@@ -34,7 +24,7 @@ public partial class Music
         
         StringBuilder stringBuilder = new StringBuilder();
 
-        var connectedGuild = await Queue.GetConnectedGuild(context);
+        var connectedGuild = await _queue.GetConnectedGuild(context);
         
         var tracks = connectedGuild.Queue;
         
@@ -43,11 +33,11 @@ public partial class Music
         estimatedPlaybackTime = tracks.Aggregate(estimatedPlaybackTime,
             (current, track) => current.Add(track.LavalinkTrack.Length));  
 
-        if (isSlavic)
+        if (language.IsSlavicLanguage)
         {
-            var parts = language.SlavicParts;
+            var parts = music.SlavicParts;
 
-            stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying,
+            stringBuilder = new StringBuilder(string.Format(music.QueueCommand.NowPlaying,
                 currentTrack.Title, 
                 currentTrack.Author,
                 conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
@@ -60,7 +50,7 @@ public partial class Music
         }
         else
         {
-            stringBuilder = new StringBuilder(string.Format(language.QueueCommand.NowPlaying,
+            stringBuilder = new StringBuilder(string.Format(music.QueueCommand.NowPlaying,
                 currentTrack.Title, currentTrack.Author,
                 conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
                 currentTrack.Length.ToString(@"hh\:mm\:ss"), tracks.Count, estimatedPlaybackTime.ToString(@"hh\:mm\:ss")
@@ -71,7 +61,7 @@ public partial class Music
         {
             var track = connectedGuild!.Queue[index];
             var lavalinkTrack = track.LavalinkTrack;
-            var content = string.Format(language.QueueCommand.QueueMessagePattern, lavalinkTrack.Author,
+            var content = string.Format(music.QueueCommand.QueueMessagePattern, lavalinkTrack.Author,
                 lavalinkTrack.Title, lavalinkTrack.Length.ToString(@"hh\:mm\:ss"), track.DiscordUser.Mention);
             if (stringBuilder.Length + content.Length <= 2000)
             {

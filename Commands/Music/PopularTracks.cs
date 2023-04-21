@@ -3,11 +3,8 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using DisCatSharp.Lavalink;
-using Microsoft.Extensions.DependencyInjection;
 using SQR.Database.Music;
 using SQR.Translation;
-using TimeSpanParserUtil;
 
 namespace SQR.Commands.Music;
 
@@ -21,18 +18,9 @@ public partial class Music
             IsEphemeral = true
         });
         
-        var language = Translator.Languages[Translator.FallbackLanguage].Music;
-
-        if (Translator.LocaleMap.ContainsKey(context.Locale))
-        {
-            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Music;
-        }
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
         
-        var lava = context.Client.GetLavalink();
-        var node = lava.ConnectedNodes.Values.First();
-        var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
-
-        var tracks = await DbService.GetTracksAsync();
+        var tracks = await _dbService.GetTracksAsync();
 
         var unsorted = new Dictionary<TrackDb, int>();
         
@@ -57,9 +45,9 @@ public partial class Music
             stringbuilder.AppendLine($"{track.Name} by {track.Author} has been played {i} times");
         }
         
-        await context.EditResponseAsync(new DiscordWebhookBuilder()
-            {
-                Content = stringbuilder.ToString()
-            });
+        await context.EditResponseAsync(new DiscordWebhookBuilder
+        {
+            Content = stringbuilder.ToString()
+        });
     }
 }

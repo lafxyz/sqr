@@ -1,19 +1,26 @@
 using DisCatSharp.Entities;
 using SQR.Translation;
+using SQR.Utilities;
 
 namespace SQR.Extenstions;
 
 public static class DiscordEmbedBuilderExtensions
 {
+    public static DiscordEmbedBuilder AddEmptyField(this DiscordEmbedBuilder builder, bool inline = false)
+    {
+        builder.AddField(inline ? EmbedUtilities.EmptyEmbedFiledInline : EmbedUtilities.EmptyEmbedFiled);
+        return builder;
+    }
+    
     public static DiscordEmbedBuilder AsSQRDefault(this DiscordEmbedBuilder builder)
     {
         var dev = Bot.Config.DeveloperUser;
 
-        builder.Color = new DiscordColor("#2b2d31");
+        builder.Color = EmbedUtilities.DiscordBackgroundColor;
         builder.WithFooter($"SQR by {dev.Username}#{dev.Discriminator}");
         builder.WithTimestamp(DateTimeOffset.UtcNow);
 
-        return builder;
+        return builder; 
     }
 
     public static DiscordEmbedBuilder AsException(this DiscordEmbedBuilder builder,

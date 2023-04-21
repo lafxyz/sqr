@@ -16,6 +16,9 @@ public class Music
     [JsonProperty("queue_command")]
     public QueueCommand QueueCommand { get; set; }
     
+    [JsonProperty("queue_worker")]
+    public QueueWorker QueueWorker { get; set; }
+    
     [JsonProperty("pause_command")]
     public PauseCommand PauseCommand { get; set; }
     

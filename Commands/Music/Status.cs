@@ -16,21 +16,14 @@ public partial class Music
     [SlashCommand("status", "Displays current playback and settings")]
     public async Task StatusCommand(InteractionContext context)
     {
-        var language = Translator.Languages[Translator.FallbackLanguage];
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
 
-        if (Translator.LocaleMap.TryGetValue(context.Locale, out var value))
-        {
-            language = Translator.Languages[value];
-        }
-
-        var lava = context.Client.GetLavalink();
-        var node = lava.ConnectedNodes.Values.First();
-        var conn = node.GetGuildConnection(context.Member.VoiceState.Guild);
+        var conn = GetConnection(context);
 
         if (conn.CurrentState.CurrentTrack is null)
             throw new CurrentTrackIsNullException();
 
-        var connectedGuild = await Queue.GetConnectedGuild(conn);
+        var connectedGuild = await _queue.GetConnectedGuild(conn);
         
         var loopMap = new Dictionary<QueueWorker.LoopingState, string>
         {
@@ -49,23 +42,21 @@ public partial class Music
         };
 
         var statusCommandLang = language.Music.StatusCommand;
-        var embed = new DiscordEmbedBuilder
-        {
-            Title = string.Format(statusCommandLang.TitleFormat, 
-                conn.CurrentState.CurrentTrack.Title, conn.CurrentState.CurrentTrack.Author),
-            Description = await BuildDescription(conn, language)
-        };
-        embed.AsSQRDefault();
-        embed.AddField(new DiscordEmbedField(statusCommandLang.IsPaused,
-            connectedGuild.IsPaused ? language.Generic.Yes : language.Generic.No, true));
-        embed.AddField(new DiscordEmbedField(statusCommandLang.Volume,
-            $"{connectedGuild.Volume}%", true));
-        embed.AddField(EmbedUtilites.EmptyEmbedFiledInline);
-        embed.AddField(new DiscordEmbedField(statusCommandLang.Loop,
-            $"{loopMap[connectedGuild.Looping]}", true));
-        embed.AddField(new DiscordEmbedField(statusCommandLang.Preset,
-            $"{presetMap[connectedGuild.Preset]}", true));
-        embed.AddField(EmbedUtilites.EmptyEmbedFiledInline);
+        var embed = new DiscordEmbedBuilder()
+            .WithTitle(string.Format(statusCommandLang.TitleFormat,
+            conn.CurrentState.CurrentTrack.Title, conn.CurrentState.CurrentTrack.Author))
+            .WithDescription(await BuildDescription(conn, language))
+            .AsSQRDefault()
+            .AddField(new DiscordEmbedField(statusCommandLang.IsPaused, 
+                connectedGuild.IsPaused ? language.Generic.Yes : language.Generic.No, true))
+            .AddField(new DiscordEmbedField(statusCommandLang.Volume, 
+                $"{connectedGuild.Volume}%", true))
+            .AddEmptyField(true)
+            .AddField(new DiscordEmbedField(statusCommandLang.Loop,
+                $"{loopMap[connectedGuild.Looping]}", true))
+            .AddField(new DiscordEmbedField(statusCommandLang.Preset,
+                $"{presetMap[connectedGuild.Preset]}", true))
+            .AddEmptyField(true);
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder()
@@ -74,7 +65,7 @@ public partial class Music
     
     private async Task<string> BuildDescription(LavalinkGuildConnection conn, Language lang)
     {
-        var connectedGuild = await Queue.GetConnectedGuild(conn);
+        var connectedGuild = await _queue.GetConnectedGuild(conn);
 
         var statusCommandLang = lang.Music.StatusCommand;
         var fillPercentage = conn.CurrentState.PlaybackPosition / conn.CurrentState.CurrentTrack.Length;

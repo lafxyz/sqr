@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using SQR.Commands.Dev;
-using SQR.Commands.Music;
 using SQR.Database;
 using SQR.Expections;
 using SQR.Services;
@@ -84,7 +82,8 @@ public class Bot
         }
         
         var appCommandModule = typeof(ApplicationCommandsModule);
-        var commands = Assembly.GetExecutingAssembly().GetTypes().Where(t => appCommandModule.IsAssignableFrom(t) && !t.IsNested).ToList();
+        var commands = Assembly.GetExecutingAssembly().GetTypes().Where(t => 
+            appCommandModule.IsAssignableFrom(t) && !t.IsNested).ToList();
 
         var guildCommands = new List<Type>
         {

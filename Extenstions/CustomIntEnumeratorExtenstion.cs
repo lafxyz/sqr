@@ -1,5 +1,3 @@
-using System.Drawing;
-
 namespace SQR.Extenstions;
 
 public static class CustomIntEnumeratorExtenstion

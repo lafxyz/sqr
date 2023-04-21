@@ -23,14 +23,17 @@
             "five_seconds": "секунд"
         },
         "equalizer_command": {
-            "gain_updated": "✅ Діапазон {0} установлено на {1}"
+            "success": "✅ Эквалайзер обновлен perevod bi",
+            "gain_updated": "Діапазон {0} установлено на {1}"
         },
         "loop_command": {
-            "no_loop": "✅ Повторення відключене",
+            "success": "✅ Loop mode changed successfully где перевод ало",
+            "no_loop": "♿ Повторення відключене",
             "loop_track": ":repeat_one: Повторення одного треку включене",
             "loop_queue": ":repeat: Повторення черги включено"
         },
         "pause_command": {
+            "success": "✅ Action completed successfully где перевод ало",
             "paused": "⏸️ Пауза, `{0}` by `{1}`"
         },
         "play_command": {
