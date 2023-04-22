@@ -3,6 +3,7 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using SQR.Translation;
+using SQR.Workers;
 
 namespace SQR.Commands.Music;
 
@@ -17,6 +18,7 @@ public partial class Music
 
         var connectedGuild = await _queue.GetConnectedGuild(context);
 
+        connectedGuild.Queue.RemoveAt(0);
         connectedGuild.IsSkipRequested = true;
         
         await conn.StopAsync();
