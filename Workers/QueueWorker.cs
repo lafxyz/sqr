@@ -123,7 +123,8 @@ public class QueueWorker
             {
                 if (connectedGuild.Looping != LoopingState.LoopTrack) connectedGuild.Queue.Remove(toPlay);
                 if (connectedGuild.Looping == LoopingState.LoopQueue) connectedGuild.Queue.Add(toPlay);
-                connectedGuild.IsSkipRequested = false;
+                var guild = await GetConnectedGuild(context);
+                guild.IsSkipRequested = false;
             }
 
             await connection.PlayAsync(toPlay.LavalinkTrack);
