@@ -119,13 +119,8 @@ public class QueueWorker
         {
             var toPlay = queueCopy.First();
             
-            if (connectedGuild.IsSkipRequested == false)
-            {
-                if (connectedGuild.Looping != LoopingState.LoopTrack) connectedGuild.Queue.Remove(toPlay);
-                if (connectedGuild.Looping == LoopingState.LoopQueue) connectedGuild.Queue.Add(toPlay);
-                var guild = await GetConnectedGuild(context);
-                guild.IsSkipRequested = false;
-            }
+            if (connectedGuild.Looping != LoopingState.LoopTrack) connectedGuild.Queue.Remove(toPlay);
+            if (connectedGuild.Looping == LoopingState.LoopQueue) connectedGuild.Queue.Add(toPlay);
 
             await connection.PlayAsync(toPlay.LavalinkTrack);
             if (connectedGuild.IsFirstTrackReceived == false) 
