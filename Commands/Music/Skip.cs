@@ -19,8 +19,7 @@ public partial class Music
         var connectedGuild = await _queue.GetConnectedGuild(context);
 
         connectedGuild.Queue.RemoveAt(0);
-        connectedGuild.IsSkipRequested = true;
-        
+
         await conn.StopAsync();
         
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
