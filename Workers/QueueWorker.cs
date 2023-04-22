@@ -3,10 +3,12 @@ using DisCatSharp;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Common;
+using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Lavalink;
 using SQR.Commands.Music;
 using SQR.Database;
+using SQR.Extenstions;
 using SQR.Models.Music;
 using SQR.Services;
 using SQR.Translation;
@@ -50,6 +52,7 @@ public class QueueWorker
     private async Task ProcessQueue(LavalinkGuildConnection connection, ConnectedGuild connectedGuild)
     {
         var context = connectedGuild.Context;
+        var queueCopy = connectedGuild.Queue.ToList();
 
         var language = Language.GetLanguageOrFallback(_translator, context.Locale);
         var music = language.Music;
@@ -64,27 +67,33 @@ public class QueueWorker
             return;
         }
 
-        if (connectedGuild.Queue.Any() == false)
+        if (queueCopy.Any() == false)
         {
             if (connectedGuild.IsFirstTrackReceived == false) return;
             if (connectedGuild.WaitingForTracks) return;
+
+            var embed = new DiscordEmbedBuilder()
+                .AsSQRDefault();
             
             const int seconds = 60;
             if (language.IsSlavicLanguage)
             {
-                //TODO: embed
-                await context.Channel.SendMessageAsync(string.Format(
-                    music.QueueWorker.LeavingInNSeconds, seconds,
-                    Translator.WordForSlavicLanguage(seconds,
-                        music.SlavicParts.OneSecond,
-                        music.SlavicParts.TwoSeconds,
-                        music.SlavicParts.FiveSeconds)));
+                embed.WithDescription(
+                    string.Format(
+                        music.QueueWorker.LeavingInNSeconds, seconds,
+                        Translator.WordForSlavicLanguage(seconds,
+                            music.SlavicParts.OneSecond,
+                            music.SlavicParts.TwoSeconds,
+                            music.SlavicParts.FiveSeconds)
+                        )
+                    );
+
+                await context.Channel.SendMessageAsync(embed);
             }
             else
             {
-                //TODO: embed
-                await context.Channel.SendMessageAsync(
-                    string.Format(music.QueueWorker.LeavingInNSeconds, seconds));
+                embed.WithDescription(string.Format(music.QueueWorker.LeavingInNSeconds, seconds));
+                await context.Channel.SendMessageAsync(embed);
             }
 
             connectedGuild.WaitingForTracks = true;
@@ -102,15 +111,14 @@ public class QueueWorker
             if (connectedGuild.Queue.Any() == false)
             {
                 await DisconnectAsync(connection);
-                //TODO: embed
-                await context.Channel.SendMessageAsync(music.QueueWorker.EmptyQueue);
+                embed.WithDescription(music.QueueWorker.EmptyQueue);
+                await context.Channel.SendMessageAsync(embed);
             }
         }
         else
         {
-            var toPlay = connectedGuild.Queue.First();
+            var toPlay = queueCopy.First();
             
-            //TODO: Fix loop edge-case (skip command)
             if (connectedGuild.IsSkipRequested == false)
             {
                 if (connectedGuild.Looping != LoopingState.LoopTrack) connectedGuild.Queue.Remove(toPlay);
@@ -122,12 +130,16 @@ public class QueueWorker
             if (connectedGuild.IsFirstTrackReceived == false) 
                 connectedGuild.IsFirstTrackReceived = true;
 
-            //TODO: embed
-            await context.Channel.SendMessageAsync(
-                string.Format(music.QueueWorker.NowPlaying, toPlay.LavalinkTrack.Title,
-                    toPlay.LavalinkTrack.Author,
-                    toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")) +
-                $"{(connection.CurrentState.CurrentTrack!.SourceName == "spotify" ? music.QueueWorker.IfPlaybackStopped : "")}");
+            var embed = new DiscordEmbedBuilder()
+                .AsSQRDefault()
+                .WithDescription(string.Format(
+                                     music.QueueWorker.NowPlaying, 
+                                     toPlay.LavalinkTrack.Title,
+                                     toPlay.LavalinkTrack.Author,
+                                     toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")
+                                     ) + $"{(connection.CurrentState.CurrentTrack!.SourceName == "spotify" ?
+                                             music.QueueWorker.IfPlaybackStopped : "")}");
+            await context.Channel.SendMessageAsync(embed);
             await Task.Delay(1000);
         }
     }
