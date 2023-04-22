@@ -14,6 +14,10 @@ public partial class Music
         var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
 
         var conn = GetConnection(context);
+
+        var connectedGuild = await _queue.GetConnectedGuild(context);
+
+        connectedGuild.IsSkipRequested = true;
         
         await conn.StopAsync();
         

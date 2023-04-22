@@ -15,6 +15,6 @@ public class ConnectedGuild
     public bool IsFirstTrackReceived = false;
     public bool WaitingForTracks = false;
     public DateTimeOffset WaitingForTracksSince;
-    
-    
+    public bool IsSkipRequested;
+
 }

@@ -42,7 +42,6 @@ public class QueueWorker
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    throw;
                 }
             }
         });
@@ -73,6 +72,7 @@ public class QueueWorker
             const int seconds = 60;
             if (language.IsSlavicLanguage)
             {
+                //TODO: embed
                 await context.Channel.SendMessageAsync(string.Format(
                     music.QueueWorker.LeavingInNSeconds, seconds,
                     Translator.WordForSlavicLanguage(seconds,
@@ -82,6 +82,7 @@ public class QueueWorker
             }
             else
             {
+                //TODO: embed
                 await context.Channel.SendMessageAsync(
                     string.Format(music.QueueWorker.LeavingInNSeconds, seconds));
             }
@@ -101,20 +102,27 @@ public class QueueWorker
             if (connectedGuild.Queue.Any() == false)
             {
                 await DisconnectAsync(connection);
+                //TODO: embed
                 await context.Channel.SendMessageAsync(music.QueueWorker.EmptyQueue);
             }
         }
         else
         {
             var toPlay = connectedGuild.Queue.First();
-
-            if (connectedGuild.Looping != LoopingState.LoopTrack) connectedGuild.Queue.Remove(toPlay);
-            if (connectedGuild.Looping == LoopingState.LoopQueue) connectedGuild.Queue.Add(toPlay);
+            
+            //TODO: Fix loop edge-case (skip command)
+            if (connectedGuild.IsSkipRequested == false)
+            {
+                if (connectedGuild.Looping != LoopingState.LoopTrack) connectedGuild.Queue.Remove(toPlay);
+                if (connectedGuild.Looping == LoopingState.LoopQueue) connectedGuild.Queue.Add(toPlay);
+                connectedGuild.IsSkipRequested = false;
+            }
 
             await connection.PlayAsync(toPlay.LavalinkTrack);
             if (connectedGuild.IsFirstTrackReceived == false) 
                 connectedGuild.IsFirstTrackReceived = true;
 
+            //TODO: embed
             await context.Channel.SendMessageAsync(
                 string.Format(music.QueueWorker.NowPlaying, toPlay.LavalinkTrack.Title,
                     toPlay.LavalinkTrack.Author,
