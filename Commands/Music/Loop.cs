@@ -15,13 +15,24 @@ public partial class Music
     {
         var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
 
+        var connectedGuild = await _queue.GetConnectedGuild(context);
+
+        if (state == QueueWorker.LoopingState.Single)
+        {
+            if (connectedGuild.NowPlaying != null) connectedGuild.Queue.Insert(0, connectedGuild.NowPlaying);
+        }
+        else if (state == QueueWorker.LoopingState.Queue)
+        {
+            if (connectedGuild.NowPlaying != null) connectedGuild.Queue.Add(connectedGuild.NowPlaying);
+        }
+        
         _queue.SetLoopState(context, state);
 
         var map = new Dictionary<QueueWorker.LoopingState, string>
         {
-            { QueueWorker.LoopingState.NoLoop, music.LoopCommand.NoLoop },
-            { QueueWorker.LoopingState.LoopTrack, music.LoopCommand.LoopTrack },
-            { QueueWorker.LoopingState.LoopQueue, music.LoopCommand.LoopQueue }
+            { QueueWorker.LoopingState.Disabled, music.LoopCommand.NoLoop },
+            { QueueWorker.LoopingState.Single, music.LoopCommand.LoopTrack },
+            { QueueWorker.LoopingState.Queue, music.LoopCommand.LoopQueue }
         };
 
         var embed = new DiscordEmbedBuilder()

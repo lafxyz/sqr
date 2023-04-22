@@ -18,7 +18,7 @@ public partial class Music
 
         var connectedGuild = await _queue.GetConnectedGuild(context);
 
-        if (connectedGuild.Looping == QueueWorker.LoopingState.LoopTrack)
+        if (connectedGuild.Looping == QueueWorker.LoopingState.Single)
             connectedGuild.Queue.RemoveAt(0);
 
         await conn.StopAsync();

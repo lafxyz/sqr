@@ -27,9 +27,9 @@ public partial class Music
         
         var loopMap = new Dictionary<QueueWorker.LoopingState, string>
         {
-            { QueueWorker.LoopingState.NoLoop, language.Music.StatusCommand.NoLoop },
-            { QueueWorker.LoopingState.LoopTrack, language.Music.StatusCommand.LoopTrack },
-            { QueueWorker.LoopingState.LoopQueue, language.Music.StatusCommand.LoopQueue }
+            { QueueWorker.LoopingState.Disabled, language.Music.StatusCommand.NoLoop },
+            { QueueWorker.LoopingState.Single, language.Music.StatusCommand.LoopTrack },
+            { QueueWorker.LoopingState.Queue, language.Music.StatusCommand.LoopQueue }
         };
         
         var presetsLang = language.Music.StatusCommand.Presets;

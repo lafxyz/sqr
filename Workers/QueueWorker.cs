@@ -33,7 +33,7 @@ public class QueueWorker
 
         var queue = new BackgroundTask(TimeSpan.FromSeconds(3));
         
-        queue.AssignAndStartTask(async () =>
+        queue.AssignAndStartTask(async Task() =>
         {
             foreach (var (connection, connectedGuild) in _servers)
             {
@@ -71,6 +71,8 @@ public class QueueWorker
         {
             if (connectedGuild.IsFirstTrackReceived == false) return;
             if (connectedGuild.WaitingForTracks) return;
+            
+            connectedGuild.NowPlaying = null;
 
             var embed = new DiscordEmbedBuilder()
                 .AsSQRDefault();
@@ -118,9 +120,10 @@ public class QueueWorker
         else
         {
             var toPlay = queueCopy.First();
+            connectedGuild.NowPlaying = toPlay;
             
-            if (connectedGuild.Looping != LoopingState.LoopTrack) connectedGuild.Queue.Remove(toPlay);
-            if (connectedGuild.Looping == LoopingState.LoopQueue) connectedGuild.Queue.Add(toPlay);
+            if (connectedGuild.Looping != LoopingState.Single) connectedGuild.Queue.Remove(toPlay);
+            if (connectedGuild.Looping == LoopingState.Queue) connectedGuild.Queue.Add(toPlay);
 
             await connection.PlayAsync(toPlay.LavalinkTrack);
             if (connectedGuild.IsFirstTrackReceived == false) 
@@ -135,6 +138,7 @@ public class QueueWorker
                                      toPlay.LavalinkTrack.Length.ToString(@"hh\:mm\:ss")
                                      ) + $"{(connection.CurrentState.CurrentTrack!.SourceName == "spotify" ?
                                              music.QueueWorker.IfPlaybackStopped : "")}");
+            
             await context.Channel.SendMessageAsync(embed);
             await Task.Delay(1000);
         }
@@ -155,11 +159,11 @@ public class QueueWorker
     public enum LoopingState
     {
         [ChoiceName("Without looping")]
-        NoLoop,
+        Disabled,
         [ChoiceName("Loop current track")]
-        LoopTrack,
+        Single,
         [ChoiceName("Loop current queue")]
-        LoopQueue
+        Queue
     }
 
     public static async Task VoiceStateUpdate(DiscordClient sender, VoiceStateUpdateEventArgs e)
@@ -256,7 +260,7 @@ public class QueueWorker
             
         var connectedGuild = new ConnectedGuild
         {
-            Looping = LoopingState.NoLoop,
+            Looping = LoopingState.Disabled,
             Queue = new List<Track>(),
             Context = context,
             Volume = 100

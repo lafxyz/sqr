@@ -6,7 +6,8 @@ namespace SQR.Models.Music;
 public class ConnectedGuild
 {
     public Guid Id = Guid.NewGuid();
-    public QueueWorker.LoopingState Looping = QueueWorker.LoopingState.NoLoop;
+    public Track? NowPlaying = null;
+    public QueueWorker.LoopingState Looping = QueueWorker.LoopingState.Disabled;
     public List<Track> Queue = new();
     public InteractionContext Context = null!;
     public bool IsPaused = false;
