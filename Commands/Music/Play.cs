@@ -72,7 +72,7 @@ public partial class Music
 
         if (language.IsSlavicLanguage)
         {
-            var parts = music.SlavicParts;
+            var parts = music.PlayCommand.SlavicParts;
 
             stringBuilder = new StringBuilder(
                 string.Format(music.PlayCommand.AddedToQueuePlaylistDescription,
