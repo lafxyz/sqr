@@ -3,6 +3,9 @@ using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.Entities;
+using DisCatSharp.Interactivity;
+using DisCatSharp.Interactivity.Enums;
+using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
 using Microsoft.EntityFrameworkCore;
@@ -92,6 +95,12 @@ public class Bot
         
         foreach (var discordClient in discord.ShardClients.Values)
         {
+            discordClient.UseInteractivity(new InteractivityConfiguration()
+            {
+                PollBehaviour = PollBehaviour.KeepEmojis,
+                Timeout = TimeSpan.FromSeconds(30)
+            });
+            
             var applicationCommands = discordClient.UseApplicationCommands(applicationCommandsConfiguration);
             
             applicationCommands.SlashCommandExecuted += SlashCommandExecuted;
