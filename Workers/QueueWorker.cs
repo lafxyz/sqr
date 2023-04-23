@@ -33,7 +33,7 @@ public class QueueWorker
 
         var queue = new BackgroundTask(TimeSpan.FromSeconds(3));
         
-        queue.AssignAndStartTask(async Task() =>
+        queue.AssignAndStartTask(async () =>
         {
             foreach (var (connection, connectedGuild) in _servers)
             {
