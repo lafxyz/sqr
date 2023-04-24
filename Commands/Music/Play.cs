@@ -102,7 +102,7 @@ public partial class Music
         }
         else
         {
-            stringBuilder.Append("\n" + string.Format(music.PlayCommand.MoreInQueueCommand, displayCount, queueCommand));
+            stringBuilder.Append("\n" + string.Format(music.PlayCommand.MoreInQueueCommand, transformed.Count, queueCommand));
         }
 
 
