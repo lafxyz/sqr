@@ -21,7 +21,7 @@ public partial class Music
         var currentTrack = conn.CurrentState.CurrentTrack;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault()
+            .AsSQRDefault(context.Client)
             .WithTitle(music.PauseCommand.Success)
             .WithDescription(
                 string.Format(music.PauseCommand.Paused, currentTrack.Title, currentTrack.Author));

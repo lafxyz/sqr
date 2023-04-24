@@ -1,3 +1,4 @@
+using DisCatSharp;
 using DisCatSharp.Entities;
 using SQR.Translation;
 using SQR.Utilities;
@@ -12,12 +13,12 @@ public static class DiscordEmbedBuilderExtensions
         return builder;
     }
     
-    public static DiscordEmbedBuilder AsSQRDefault(this DiscordEmbedBuilder builder)
+    public static DiscordEmbedBuilder AsSQRDefault(this DiscordEmbedBuilder builder, DiscordClient client)
     {
         var dev = Bot.Config.DeveloperUser;
 
         builder.Color = EmbedUtilities.DiscordBackgroundColor;
-        builder.WithFooter($"SQR by {dev.Username}#{dev.Discriminator}");
+        builder.WithFooter($"SQR by {dev.Username}#{dev.Discriminator}", client.CurrentUser.AvatarUrl);
         builder.WithTimestamp(DateTimeOffset.UtcNow);
 
         return builder; 

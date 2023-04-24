@@ -127,14 +127,20 @@ public class Bot
         
         discord.Ready += async (client, _) =>
         {
-            _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true); 
+            _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
+            
+            var configUpdater = new BackgroundTask(TimeSpan.FromHours(2));
+            configUpdater.AssignAndStartTask(async () =>
+            {
+                Console.WriteLine("executed!");
+                _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
+            });
 
             var activityIndex = 0;
 
             var activityTask = new BackgroundTask(TimeSpan.FromSeconds(30));
             activityTask.AssignAndStartTask(async () =>
             {
-                if (_config?.Activities is null) return;
                 if (activityIndex >= _config.Activities.Count) activityIndex = 0;
                 var activity = _config.Activities[activityIndex];
                 if (string.IsNullOrWhiteSpace(activity?.Name)) 

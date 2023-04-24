@@ -52,7 +52,9 @@
             "added_to_queue_single_description": "🎵 **{0}** от **{1}** `{2}`",
             "added_to_queue_playlist_success": "✅ Плейлист `{0}` был добавлен в очередь",
             "added_to_queue_playlist_description": "{0} {1}\n",
-            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n"
+            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
+            "more_in_queue_command": "Первые {0} {1}. Больше в {2}",
+            "current_page": "Текущая страница: {0}/{1}\n"
         },
         "queue_command": {
             "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Добавил {3}",

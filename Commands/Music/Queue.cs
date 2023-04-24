@@ -1,9 +1,14 @@
+using System.Diagnostics;
 using System.Text;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.Lavalink;
+using SQR.Extenstions;
+using SQR.Models.Music;
+using SQR.Pagination;
 using SQR.Translation;
 
 namespace SQR.Commands.Music;
@@ -13,66 +18,130 @@ public partial class Music
     [SlashCommand("queue", "Display queue")]
     public async Task QueueCommand(InteractionContext context)
     {
-        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
-        var music = language.Music;
-        
-        var lava = context.Client.GetLavalink();
-        var node = lava.ConnectedNodes.Values.First();
-        var conn = node.GetGuildConnection(context.Member.VoiceState?.Guild);
-
-        var currentTrack = conn.CurrentState.CurrentTrack;
-        
-        StringBuilder stringBuilder = new StringBuilder();
-
-        var connectedGuild = await _queue.GetConnectedGuild(context);
-        
-        var tracks = connectedGuild.Queue;
-        
-        TimeSpan estimatedPlaybackTime = default;
-
-        estimatedPlaybackTime = tracks.Aggregate(estimatedPlaybackTime,
-            (current, track) => current.Add(track.LavalinkTrack.Length));  
-
-        if (language.IsSlavicLanguage)
+        _ = Task.Run(async () =>
         {
-            var parts = music.SlavicParts;
+            var language = Language.GetLanguageOrFallback(_translator, context.Locale);
+            var music = language.Music;
 
-            stringBuilder = new StringBuilder(string.Format(music.QueueCommand.NowPlaying,
-                currentTrack.Title, 
-                currentTrack.Author,
-                conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
-                currentTrack.Length.ToString(@"hh\:mm\:ss"), 
-                tracks.Count,
-                estimatedPlaybackTime.ToString(@"hh\:mm\:ss"),
-                Translator.WordForSlavicLanguage(tracks.Count, parts.OneTrack, parts.TwoTracks,
-                    parts.FiveTracks)
-            ));
-        }
-        else
-        {
-            stringBuilder = new StringBuilder(string.Format(music.QueueCommand.NowPlaying,
-                currentTrack.Title, currentTrack.Author,
-                conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
-                currentTrack.Length.ToString(@"hh\:mm\:ss"), tracks.Count, estimatedPlaybackTime.ToString(@"hh\:mm\:ss")
-            ));
-        }
+            var conn = GetConnection(context)!;
 
-        for (var index = 0; index < connectedGuild.Queue.Count; index++)
-        {
-            var track = connectedGuild!.Queue[index];
-            var lavalinkTrack = track.LavalinkTrack;
-            var content = string.Format(music.QueueCommand.QueueMessagePattern, lavalinkTrack.Author,
-                lavalinkTrack.Title, lavalinkTrack.Length.ToString(@"hh\:mm\:ss"), track.DiscordUser.Mention);
-            if (stringBuilder.Length + content.Length <= 2000)
+            var currentTrack = conn.CurrentState.CurrentTrack;
+
+            var stringBuilder = new StringBuilder();
+
+            var connectedGuild = await _queue.GetConnectedGuild(context);
+
+            var tracks = connectedGuild.Queue;
+
+            TimeSpan estimatedPlaybackTime = default;
+
+            estimatedPlaybackTime = tracks.Aggregate(estimatedPlaybackTime,
+                (current, track) => current.Add(track.LavalinkTrack.Length));
+
+            var embed = new DiscordEmbedBuilder()
+                .AsSQRDefault(context.Client);
+
+            if (language.IsSlavicLanguage)
             {
-                stringBuilder.Append(content);
+                var parts = music.SlavicParts;
+
+                stringBuilder = new StringBuilder(string.Format(music.QueueCommand.NowPlaying,
+                    currentTrack.Title,
+                    currentTrack.Author,
+                    conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
+                    currentTrack.Length.ToString(@"hh\:mm\:ss"),
+                    tracks.Count,
+                    estimatedPlaybackTime.ToString(@"hh\:mm\:ss"),
+                    Translator.WordForSlavicLanguage(tracks.Count, parts.OneTrack, parts.TwoTracks,
+                        parts.FiveTracks)
+                ));
             }
-        }
-
-        await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder
+            else
             {
-                Content = stringBuilder.ToString()
+                stringBuilder = new StringBuilder(string.Format(music.QueueCommand.NowPlaying,
+                    currentTrack.Title, currentTrack.Author,
+                    conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
+                    currentTrack.Length.ToString(@"hh\:mm\:ss"), tracks.Count,
+                    estimatedPlaybackTime.ToString(@"hh\:mm\:ss")
+                ));
+            }
+            
+            #region Pagination
+            
+            var pageContainer = new PageContainer<Track>(tracks, 5);
+            
+            DiscordButtonComponent[] buttons = {
+                new(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Prev"),
+                new(ButtonStyle.Secondary, Guid.NewGuid().ToString(), "Next")
+            };
+
+            var current = pageContainer.Current();
+            var transformedTracks = current.Content.Select(x =>
+            {
+                var lavalinkTrack = x.LavalinkTrack;
+                var transformed = string.Format(music.QueueCommand.QueueMessagePattern, lavalinkTrack.Author,
+                    lavalinkTrack.Title, lavalinkTrack.Length.ToString(@"hh\:mm\:ss"), x.DiscordUser.Mention);
+                return transformed;
             });
+
+            var content = string.Join("\n", transformedTracks);
+            var currentPage = string.Format(language.Music.QueueCommand.CurrentPage,
+                current.Index, pageContainer.Pages.Count);
+            embed.WithDescription(stringBuilder + currentPage + content);
+            
+            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder()
+                        .AddEmbed(embed)
+                        .AddComponents(buttons));
+            
+            var response = await context.GetOriginalResponseAsync();
+            var timeOutOverride = TimeSpan.FromMinutes(15);
+            var expiresAt = DateTime.UtcNow.Add(timeOutOverride);
+            var interactivity = context.Client.GetInteractivity();
+
+            while (expiresAt > DateTime.UtcNow)
+            {
+                var a = await interactivity.WaitForButtonAsync(response, buttons, timeOutOverride);
+
+                if (a.TimedOut) break;
+                
+                await a.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage);
+
+                Page<Track>? page = null;
+
+                if (a.Result.Id == buttons[0].CustomId) // Prev
+                {
+                    page = pageContainer.PreviousOrDefault();
+                } else if (a.Result.Id == buttons[1].CustomId) // Next
+                {
+                    page = pageContainer.NextOrDefault();
+                }
+                
+                if (page is null) continue;
+                
+                transformedTracks = page.Content.Select(x =>
+                {
+                    var lavalinkTrack = x.LavalinkTrack;
+                    var transformed = string.Format(music.QueueCommand.QueueMessagePattern, lavalinkTrack.Author,
+                        lavalinkTrack.Title, lavalinkTrack.Length.ToString(@"hh\:mm\:ss"), x.DiscordUser.Mention);
+                    return transformed;
+                });
+                
+                content = string.Join("\n", transformedTracks);
+                currentPage = string.Format(language.Music.QueueCommand.CurrentPage,
+                    page.Index, pageContainer.Pages.Count);
+
+                embed.WithDescription(stringBuilder + currentPage + content);
+
+                response = await context.EditResponseAsync(new DiscordWebhookBuilder()
+                    .AddEmbed(embed)
+                    .AddComponents(buttons));
+            }
+            
+            await context.EditResponseAsync(new DiscordWebhookBuilder()
+                .WithContent(string.Join("\n", string.Join("\n", pageContainer.Current().Content))));
+            
+            #endregion
+        });
     }
 }

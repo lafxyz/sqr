@@ -52,7 +52,9 @@
             "added_to_queue_single_description": "🎵 **{0}** вiд **{1}** `{2}`",
             "added_to_queue_playlist_success": "✅ Плейлист `{0}` було додано в чергу",
             "added_to_queue_playlist_description": "{0} {1}\n",
-            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n"
+            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
+            "more_in_queue_command": "Перші {0} {1}. Більше в {2}",
+            "current_page": "Поточна сторінка: {0}/{1}\n"
         },
         "queue_command": {
             "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Добавив: {3}",

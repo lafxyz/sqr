@@ -18,4 +18,6 @@ public class PlayCommand
     [JsonProperty("added_to_queue_playlist_description")] public string AddedToQueuePlaylistDescription { get; set; }
 
     [JsonProperty("added_to_queue_message_pattern")] public string AddedToQueueMessagePattern { get; set; }
+    
+    [JsonProperty("more_in_queue_command")] public string MoreInQueueCommand { get; set; }
 }

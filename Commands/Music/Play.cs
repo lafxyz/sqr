@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Diagnostics;
 using System.Text;
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -8,7 +10,8 @@ using DisCatSharp.Lavalink;
 using SQR.Expections;
 using SQR.Extenstions;
 using SQR.Translation;
-using SQR.Workers;
+using SQR.Translation.Music;
+using QueueWorker = SQR.Workers.QueueWorker;
 
 namespace SQR.Commands.Music;
 
@@ -33,26 +36,13 @@ public partial class Music
         {
             throw new TrackSearchFailedException(search, true);
         }
-        
-        /*
-         *  ✅ Playlist `name` added to queue
-         *  Track name
-         *  Author `time`
-         *  ...
-         */
-        
-        /*
-         *  ✅ Track successfully added to queue
-         *  
-         * 
-         */
 
         if (loadResult.IsPlaylist == false)
         {
             var track = loadResult.LavalinkLoadResult.Tracks.First();
 
             var embedSingle = new DiscordEmbedBuilder()
-                .AsSQRDefault()
+                .AsSQRDefault(context.Client)
                 .WithTitle(music.PlayCommand.AddedToQueueSingleSuccess)
                 .WithDescription(
                     string.Format(music.PlayCommand.AddedToQueueSingleDescription,
@@ -66,7 +56,7 @@ public partial class Music
         StringBuilder stringBuilder;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault()
+            .AsSQRDefault(context.Client)
             .WithTitle(string.Format(music.PlayCommand.AddedToQueuePlaylistSuccess,
             loadResult.LavalinkLoadResult.PlaylistInfo.Name));
 
@@ -89,13 +79,31 @@ public partial class Music
                 );
         }
 
+        var queueCommand = context.Client.GetApplicationCommands().GetGlobalCommand(nameof(QueueCommand))!.Mention; 
+        const int displayCount = 5;
+
         foreach (var content in loadResult.LavalinkLoadResult.Tracks.Select(loadResultTrack =>
                          string.Format(music.PlayCommand.AddedToQueueMessagePattern, loadResultTrack.Title,
-                                       loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author))
-                     .Where(content => stringBuilder.Length + content.Length <= 2000))
+                             loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author))
+                     .Take(displayCount))
         {
-            stringBuilder.Append(content);                 
+            stringBuilder.Append(content);
         }
+
+        if (language.IsSlavicLanguage)
+        {
+            var globalParts = language.Music.SlavicParts;
+            stringBuilder.Append("\n" + string.Format(music.PlayCommand.MoreInQueueCommand,
+                displayCount,
+                Translator.WordForSlavicLanguage(loadResult.LavalinkLoadResult.Tracks.Count, globalParts.OneTrack,
+                    globalParts.TwoTracks, globalParts.FiveTracks),
+                queueCommand));
+        }
+        else
+        {
+            stringBuilder.Append("\n" + string.Format(music.PlayCommand.MoreInQueueCommand, displayCount, queueCommand));
+        }
+
 
         embed.WithDescription(stringBuilder.ToString());
 

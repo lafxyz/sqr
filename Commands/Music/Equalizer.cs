@@ -21,7 +21,7 @@ public partial class Music
         await conn.AdjustEqualizerAsync(new LavalinkBandAdjustment(bandId, gain));
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault()
+            .AsSQRDefault(context.Client)
             .WithTitle(music.EqualizerCommand.Success)
             .WithDescription(string.Format(music.EqualizerCommand.GainUpdated, bandId, gain));
 

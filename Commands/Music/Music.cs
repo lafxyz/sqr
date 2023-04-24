@@ -1,11 +1,13 @@
-using System.Reflection;
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Lavalink;
 using SQR.Expections;
+using SQR.Extenstions;
 using SQR.Services;
 using SQR.Translation;
+using SQR.Utilities;
 using SQR.Workers;
 
 namespace SQR.Commands.Music;
@@ -25,18 +27,18 @@ public partial class Music : ApplicationCommandsModule
         var musicType = typeof(Music);
         _excludeVoiceState = new List<string>
         {
-            GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
+            AssemblyScanUtilities.GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
         };
 
         _excludeIsConnected = new List<string>
         {
-            GetSlashCommandAttribute(musicType, nameof(PlayCommand)).Name,
-            GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
+            AssemblyScanUtilities.GetSlashCommandAttribute(musicType, nameof(PlayCommand)).Name,
+            AssemblyScanUtilities.GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
         };
 
         _excludeDifferentChannel = new List<string>
         {
-            GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
+            AssemblyScanUtilities.GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
         };
     }
 
@@ -94,12 +96,5 @@ public partial class Music : ApplicationCommandsModule
         var lava = context.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
         return node.GetGuildConnection(context.Guild);
-    }
-
-    private SlashCommandAttribute GetSlashCommandAttribute(Type type, string command)
-    {
-        var attributes = type.GetMethod(command)?.GetCustomAttributes(false);
-        
-        return (SlashCommandAttribute)attributes!.First(x => x is SlashCommandAttribute);
     }
 }

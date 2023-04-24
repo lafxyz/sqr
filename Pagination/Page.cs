@@ -2,7 +2,12 @@ namespace SQR.Pagination;
 
 public class Page<T>
 {
-    public int Id { get; set; }
+    public readonly int Index;
+    public IEnumerable<T> Content { get; }
 
-    public T Content;
+    public Page(int index, IEnumerable<T> content)
+    {
+        Index = index;
+        Content = content;
+    }
 }

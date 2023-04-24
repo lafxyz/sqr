@@ -6,9 +6,9 @@ namespace SQR.Translation.Music;
 
 public class QueueCommand
 {
-    [JsonProperty("queue_message_pattern")]
-    public string QueueMessagePattern { get; set; }
+    [JsonProperty("queue_message_pattern")] public string QueueMessagePattern { get; set; }
 
-    [JsonProperty("now_playing")]
-    public string NowPlaying { get; set; }
+    [JsonProperty("now_playing")] public string NowPlaying { get; set; }
+    
+    [JsonProperty("current_page")] public string CurrentPage { get; set; }
 }

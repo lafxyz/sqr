@@ -40,7 +40,7 @@ public partial class Music
         _queue.SetPreset(context, preset);
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault()
+            .AsSQRDefault(context.Client)
             .WithTitle(music.EqualizerPresetCommand.Success)
             .WithDescription(string.Format(music.EqualizerPresetCommand.PresetUpdated, preset));
 

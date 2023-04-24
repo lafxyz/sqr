@@ -75,7 +75,7 @@ public class QueueWorker
             connectedGuild.NowPlaying = null;
 
             var embed = new DiscordEmbedBuilder()
-                .AsSQRDefault();
+                .AsSQRDefault(context.Client);
             
             const int seconds = 60;
             if (language.IsSlavicLanguage)
@@ -130,7 +130,7 @@ public class QueueWorker
                 connectedGuild.IsFirstTrackReceived = true;
 
             var embed = new DiscordEmbedBuilder()
-                .AsSQRDefault()
+                .AsSQRDefault(context.Client)
                 .WithDescription(string.Format(
                                      music.QueueWorker.NowPlaying, 
                                      toPlay.LavalinkTrack.Title,

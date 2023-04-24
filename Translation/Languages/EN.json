@@ -41,11 +41,13 @@
             "added_to_queue_single_description": "🎵 **{0}** by **{1}**\n`{2}`",
             "added_to_queue_playlist_success": "✅ Playlist `{0}` successfully added to queue",
             "added_to_queue_playlist_description": "{0} Track(s) has been added\n",
-            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n"
+            "added_to_queue_message_pattern": "\n**{0}**\n> `{1}` **{2}**\n",
+            "more_in_queue_command": "Displaying first {0} track(s). More in {1}"
         },
         "queue_command": {
             "queue_message_pattern": "\n**{0}** - **{1}**\n> `{2}` | Added by {3}",
-            "now_playing": "▶ Now playing: `{0}` by `{1}` ({2} - {3})\n\nIn queue {4} track(s) for {5}: "
+            "now_playing": "▶ Now playing: `{0}` by `{1}` ({2} - {3})\n\nIn queue {4} track(s) for {5}:\n",
+            "current_page": "Current page: {0}/{1}\n"
         },
         "resume_command": { 
             "resumed": "⏯ Resumed `{0}` by `{1}`"

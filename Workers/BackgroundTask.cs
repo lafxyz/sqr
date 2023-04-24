@@ -14,7 +14,7 @@ public class BackgroundTask
         _timer = new PeriodicTimer(interval);
     }
 
-    public void AssignAndStartTask(Action action)
+    public void AssignAndStartTask(Func<Task> action)
     {
         if (_task is not null)
         {
@@ -26,13 +26,13 @@ public class BackgroundTask
         _task = RepeatTask(action);
     }
 
-    private async Task RepeatTask(Action action)
+    private async Task RepeatTask(Func<Task> action)
     {
         try
         {
             while (await _timer.WaitForNextTickAsync(_cts.Token))
             {
-                action.Invoke();
+                await action.Invoke();
             }
         }
         catch (OperationCanceledException)

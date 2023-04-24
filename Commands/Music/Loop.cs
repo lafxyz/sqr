@@ -36,7 +36,7 @@ public partial class Music
         };
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault()
+            .AsSQRDefault(context.Client)
             .WithTitle(music.LoopCommand.Success)
             .WithDescription(map[state]);
 
