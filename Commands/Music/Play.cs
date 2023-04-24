@@ -81,11 +81,12 @@ public partial class Music
 
         var queueCommand = context.Client.GetApplicationCommands().GetGlobalCommand(nameof(QueueCommand))!.Mention; 
         const int displayCount = 5;
-
-        foreach (var content in loadResult.LavalinkLoadResult.Tracks.Select(loadResultTrack =>
-                         string.Format(music.PlayCommand.AddedToQueueMessagePattern, loadResultTrack.Title,
-                             loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author))
-                     .Take(displayCount))
+        var transformed = loadResult.LavalinkLoadResult.Tracks.Select(loadResultTrack =>
+                string.Format(music.PlayCommand.AddedToQueueMessagePattern, loadResultTrack.Title,
+                    loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author))
+            .Take(displayCount).ToList();
+        
+        foreach (var content in transformed)
         {
             stringBuilder.Append(content);
         }
@@ -94,7 +95,7 @@ public partial class Music
         {
             var globalParts = language.Music.SlavicParts;
             stringBuilder.Append("\n" + string.Format(music.PlayCommand.MoreInQueueCommand,
-                displayCount,
+                transformed.Count,
                 Translator.WordForSlavicLanguage(loadResult.LavalinkLoadResult.Tracks.Count, globalParts.OneTrack,
                     globalParts.TwoTracks, globalParts.FiveTracks),
                 queueCommand));
