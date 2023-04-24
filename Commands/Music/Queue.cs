@@ -71,8 +71,8 @@ public partial class Music
             var pageContainer = new PageContainer<Track>(tracks, 5);
             
             DiscordButtonComponent[] buttons = {
-                new(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Prev"),
-                new(ButtonStyle.Secondary, Guid.NewGuid().ToString(), "Next")
+                new(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Previous page", true),
+                new(ButtonStyle.Secondary, Guid.NewGuid().ToString(), "Next page", pageContainer.Pages.Count == 1)
             };
 
             var current = pageContainer.Current();
@@ -101,24 +101,36 @@ public partial class Music
 
             while (expiresAt > DateTime.UtcNow)
             {
-                var a = await interactivity.WaitForButtonAsync(response, buttons, timeOutOverride);
-
-                if (a.TimedOut) break;
+                var interactivityResult = await interactivity.WaitForButtonAsync(response, buttons, timeOutOverride);
                 
-                await a.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage);
+                if (interactivityResult.Result.User.Id != context.User.Id) continue;
+                
+                if (interactivityResult.TimedOut) break;
+                
+                await interactivityResult.Result.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage);
 
                 Page<Track>? page = null;
 
-                if (a.Result.Id == buttons[0].CustomId) // Prev
+                if (interactivityResult.Result.Id == buttons[0].CustomId) // Prev
                 {
                     page = pageContainer.PreviousOrDefault();
-                } else if (a.Result.Id == buttons[1].CustomId) // Next
+
+                } else if (interactivityResult.Result.Id == buttons[1].CustomId) // Next
                 {
                     page = pageContainer.NextOrDefault();
                 }
                 
                 if (page is null) continue;
-                
+                if (page.Index == 1)
+                    buttons[0].Disable();
+                else
+                    buttons[0].Enable();
+
+                if (pageContainer.Pages.Count >= 2 && page.Index != pageContainer.Pages.Count)
+                    buttons[1].Enable();
+                else
+                    buttons[1].Disable();
+
                 transformedTracks = page.Content.Select(x =>
                 {
                     var lavalinkTrack = x.LavalinkTrack;
