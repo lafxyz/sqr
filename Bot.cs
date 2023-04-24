@@ -129,10 +129,9 @@ public class Bot
         {
             _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
             
-            var configUpdater = new BackgroundTask(TimeSpan.FromHours(2));
+            var configUpdater = new BackgroundTask(TimeSpan.FromHours(12));
             configUpdater.AssignAndStartTask(async () =>
             {
-                Console.WriteLine("executed!");
                 _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
             });
 
