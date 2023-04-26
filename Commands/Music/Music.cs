@@ -68,7 +68,7 @@ public partial class Music : ApplicationCommandsModule
 
         var conn = GetConnection(context);
 
-        if (voiceState is null)
+        if (voiceState is null || context.Guild.Id != voiceState.Guild.Id)
         {
             if (_excludeVoiceState.Contains(context.CommandName) == false)
                 throw new NotInVoiceChannelException();
@@ -80,7 +80,6 @@ public partial class Music : ApplicationCommandsModule
                 throw new ClientIsNotConnectedException();
         }
         
-
         if (context.Guild.CurrentMember.VoiceState != null 
             && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
         {
