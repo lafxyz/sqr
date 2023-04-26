@@ -51,4 +51,7 @@ public class Music
 
     [JsonProperty("status_command")]
     public StatusCommand StatusCommand { get; set; }
+    
+    [JsonProperty("vote_skip_command")]
+    public VoteSkipCommand VoteSkipCommand { get; set; }
 }

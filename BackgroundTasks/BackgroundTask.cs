@@ -1,6 +1,6 @@
 using Serilog;
 
-namespace SQR.Workers;
+namespace SQR.BackgroundTasks;
 
 public class BackgroundTask
 {

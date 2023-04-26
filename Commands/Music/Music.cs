@@ -3,12 +3,12 @@ using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Lavalink;
+using SQR.BackgroundTasks;
 using SQR.Expections;
 using SQR.Extenstions;
 using SQR.Services;
 using SQR.Translation;
 using SQR.Utilities;
-using SQR.Workers;
 
 namespace SQR.Commands.Music;
 public partial class Music : ApplicationCommandsModule

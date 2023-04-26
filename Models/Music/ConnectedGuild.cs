@@ -1,5 +1,6 @@
 using DisCatSharp.ApplicationCommands.Context;
-using SQR.Workers;
+using DisCatSharp.Entities;
+using SQR.BackgroundTasks;
 
 namespace SQR.Models.Music;
 
@@ -16,5 +17,27 @@ public class ConnectedGuild
     public bool IsFirstTrackReceived = false;
     public bool WaitingForTracks = false;
     public DateTimeOffset WaitingForTracksSince;
+    public VoteSkip VoteSkip = new();
 
+}
+
+public class VoteSkip
+{
+    public Track? RequestedTrackToSkip { get; set; }
+    public List<ulong> Users { get; private set; } = new();
+
+    public void Reset()
+    {
+        RequestedTrackToSkip = null;
+        Users = new List<ulong>();
+    }
+
+    public bool Vote(DiscordUser user)
+    {
+        if (Users.Contains(user.Id))
+            return false;
+
+        Users.Add(user.Id);
+        return true;
+    }
 }

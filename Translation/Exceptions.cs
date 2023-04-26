@@ -12,5 +12,6 @@ public class Exceptions
     [JsonProperty("not_in_voice")] public string NotInVoice { get; set; }
     [JsonProperty("track_search_failed")] public string TrackSearchFailed { get; set; }
     [JsonProperty("nothing_is_playing")] public string NothingIsPlaying { get; set; }
+    [JsonProperty("already_voted")] public string AlreadyVoted { get; set; }
     
 }

@@ -11,7 +11,9 @@
         "different_voice": ":x: Вы находитесь в другом канале",
         "lavalink_is_not_connected": ":x: Соединение с Lavalink не установленно",
         "not_in_voice": ":x: Вы не в канале",
-        "track_search_failed": ":x: Не удалось найти треки по запросу: {0}"
+        "track_search_failed": ":x: Не удалось найти треки по запросу: {0}",
+        "nothing_is_playing": "❌ В плеере нет трека",
+        "already_voted": "❌ Вы уже голосовали за пропуск `{0} от {1}`"
     },
     "music": {
         "slavic_parts": {
@@ -102,6 +104,15 @@
                 "pop": "Pop",
                 "default": "По умолчанию"
             }
+        },
+        "vote_skip_command": {
+            "slavic_parts": {
+                "one_vote": "голос",
+                "two_votes": "голоса",
+                "five_votes": "голосов"
+            },
+            "threshold_passed": "✅ Голосов достаточно. Пропускаю `{0} от {1}`",
+            "voted": "✅ Вы проголосовали за пропуск `{0} от {1}`\nТребуется еще {2} {3}."
         }
     },
     "dev": {

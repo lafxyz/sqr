@@ -11,7 +11,7 @@ using SQR.Expections;
 using SQR.Extenstions;
 using SQR.Translation;
 using SQR.Translation.Music;
-using QueueWorker = SQR.Workers.QueueWorker;
+using QueueWorker = SQR.BackgroundTasks.QueueWorker;
 
 namespace SQR.Commands.Music;
 

@@ -7,7 +7,8 @@
         "lavalink_is_not_connected": "❌ The Lavalink connection is not established",
         "not_in_voice": "❌ You're not in voice channel",
         "track_search_failed": "❌ Couldn't find any tracks for: {0}",
-        "nothing_is_playing": "❌ Nothing is playing"
+        "nothing_is_playing": "❌ Nothing is playing",
+        "already_voted": "❌ You're already voted for skip `{0} by {1}`"
     },
     "generic": {
         "yes": "Yes",
@@ -19,7 +20,7 @@
         "queue_worker": {
             "empty_queue": "Leaving 👋🏻",
             "leaving_in_n_seconds": "The queue is empty, if you don't add tracks within {0} second(s), I will leave the channel!",
-            "now_playing": "▶ Now playing: **{0}** by **{1}** `{2}`",
+            "now_playing": "▶️ Now playing: **{0}** by **{1}** `{2}`",
             "if_playback_stopped": "\n\n⚠️ If playback stopped/skipped immediately that means that track was not found on YouTube by ISRC, use YouTube search instead"
         },
         "equalizer_command": {
@@ -91,6 +92,10 @@
                 "pop": "Pop",
                 "default": "Default"
             }
+        },
+        "vote_skip_command": {
+            "threshold_passed": "✅ Threshold passed. Skipping `{0} by {1}`",
+            "voted": "✅ You voted for skip `{0} by {1}`\nRequires {2} more vote(s)"
         }
     },
     "dev": {

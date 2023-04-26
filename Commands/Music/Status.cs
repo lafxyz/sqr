@@ -3,11 +3,11 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using SQR.BackgroundTasks;
 using SQR.Expections;
 using SQR.Extenstions;
 using SQR.Translation;
 using SQR.Utilities;
-using SQR.Workers;
 
 namespace SQR.Commands.Music;
 

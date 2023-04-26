@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -13,7 +12,7 @@ using SQR.Models.Music;
 using SQR.Services;
 using SQR.Translation;
 
-namespace SQR.Workers;
+namespace SQR.BackgroundTasks;
 
 public class QueueWorker
 {
@@ -41,6 +40,7 @@ public class QueueWorker
                 {
                     await ProcessQueue(connection, connectedGuild);
                 }
+                catch (ArgumentException) { }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
@@ -52,7 +52,6 @@ public class QueueWorker
     private async Task ProcessQueue(LavalinkGuildConnection connection, ConnectedGuild connectedGuild)
     {
         var context = connectedGuild.Context;
-        var queueCopy = connectedGuild.Queue.ToList();
 
         var language = Language.GetLanguageOrFallback(_translator, context.Locale);
         var music = language.Music;
@@ -67,7 +66,7 @@ public class QueueWorker
             return;
         }
 
-        if (queueCopy.Any() == false)
+        if (connectedGuild.Queue.Any() == false)
         {
             if (connectedGuild.IsFirstTrackReceived == false) return;
             if (connectedGuild.WaitingForTracks) return;
@@ -119,6 +118,7 @@ public class QueueWorker
         }
         else
         {
+            var queueCopy = connectedGuild.Queue.ToList();
             var toPlay = queueCopy.First();
             connectedGuild.NowPlaying = toPlay;
             

@@ -62,6 +62,22 @@ public class ExceptionHandler
         await SendOrEditResponseAsync(e.Context, embed, exception.IsDeferred);
         return true;
     }
+    
+    private async Task<bool> HandleAlreadyVoted(SlashCommandErrorEventArgs e, Language lang)
+    {
+        if (e.Exception is not AlreadyVotedException exception) return false;
+
+        var llt = exception.Track.LavalinkTrack;
+        
+        var embed = new DiscordEmbedBuilder()
+            .AsSQRDefault(e.Context.Client)
+            .AsException(lang, string.Format(
+                    lang.Exceptions.AlreadyVoted, llt.Title, llt.Author
+                ));
+        
+        await SendOrEditResponseAsync(e.Context, embed, exception.IsDeferred);
+        return true;
+    }
 
     private async Task<bool> HandleNotInVoiceChannel(SlashCommandErrorEventArgs e, Language lang)
     {

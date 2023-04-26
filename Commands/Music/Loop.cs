@@ -2,9 +2,9 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using SQR.BackgroundTasks;
 using SQR.Extenstions;
 using SQR.Translation;
-using SQR.Workers;
 
 namespace SQR.Commands.Music;
 

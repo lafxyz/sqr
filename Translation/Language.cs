@@ -7,6 +7,7 @@ namespace SQR.Translation
     public partial class Language
     {
         [JsonProperty("is_slavic_language")] public bool IsSlavicLanguage { get; set; }
+        
         [JsonProperty("exceptions")] public Exceptions Exceptions { get; set; }
 
         [JsonProperty("generic")] public Generic Generic { get; set; }

@@ -12,11 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using SQR.BackgroundTasks;
 using SQR.Database;
 using SQR.Expections;
 using SQR.Services;
 using SQR.Translation;
-using SQR.Workers;
 using Dev = SQR.Translation.Dev;
 
 namespace SQR;
