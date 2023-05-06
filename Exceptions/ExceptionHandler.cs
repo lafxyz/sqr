@@ -1,3 +1,4 @@
+using System.Text;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.ApplicationCommands.EventArgs;
@@ -41,15 +42,14 @@ public class ExceptionHandler
     private async Task UnhandledExceptionReceived(SlashCommandErrorEventArgs e, Language lang)
     {
         Log.Logger.Warning("SUPPRESSED EXCEPTION!\n {Exception}", e.Exception);
-        
+
         var embed = new DiscordEmbedBuilder()
             .AsSQRDefault(e.Context.Client)
-            .AsException(lang, e.Exception.Message)
-            .AddField(new DiscordEmbedField("StackTrace:", $"```{e.Exception.StackTrace}```"));
+            .AsException(lang, "```" + e.Exception + "```");
 
         var baseException = e.Exception as BaseException;
         var isDeferred = baseException?.IsDeferred ?? false;
-        
+
         await SendOrEditResponseAsync(e.Context, embed, isDeferred);
     }
 

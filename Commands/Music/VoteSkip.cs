@@ -21,7 +21,7 @@ public partial class Music
         var conn = GetConnection(context);
         var connectedGuild = await _queue.GetConnectedGuild(context);
         var users = voiceState.Channel.Users.Where(x => x.IsBot == false).ToList();
-        var threshold = (int)(users.Count * 30.0f);
+        var threshold = (int)(users.Count * 0.7f);
 
         if (connectedGuild.NowPlaying is null)
             throw new CurrentTrackIsNullException();
