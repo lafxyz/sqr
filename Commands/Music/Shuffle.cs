@@ -11,14 +11,14 @@ public partial class Music
     [SlashCommand("shuffle", "Shuffles queue")]
     public async Task ShuffleCommand(InteractionContext context)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
     
         _queue.Shuffle(context);
         
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
-                Content = music.ShuffleCommand.Shuffled
+                Content = music.ShuffleCommandTranslation.Shuffled
             });
     }
 }

@@ -11,7 +11,7 @@ public partial class Music
     [SlashCommand("resume", "Resumes playback")]
     public async Task ResumeCommand(InteractionContext context)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
 
         var conn = GetConnection(context);
 
@@ -20,7 +20,7 @@ public partial class Music
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
-                Content = string.Format(music.ResumeCommand.Resumed, conn.CurrentState.CurrentTrack.Title, conn.CurrentState.CurrentTrack.Author)
+                Content = string.Format(music.ResumeCommandTranslation.Resumed, conn.CurrentState.CurrentTrack.Title, conn.CurrentState.CurrentTrack.Author)
             });
     }
 }

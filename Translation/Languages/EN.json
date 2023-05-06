@@ -8,7 +8,8 @@
         "not_in_voice": "❌ You're not in voice channel",
         "track_search_failed": "❌ Couldn't find any tracks for: {0}",
         "nothing_is_playing": "❌ Nothing is playing",
-        "already_voted": "❌ You're already voted for skip `{0} by {1}`"
+        "already_voted": "❌ You're already voted for skip `{0} by {1}`",
+        "parse_failed": "❌ Couldn't parse. `Comment: {0}`"
     },
     "generic": {
         "yes": "Yes",
@@ -54,7 +55,7 @@
             "resumed": "⏯ Resumed `{0}` by `{1}`"
         },
         "seek_command": {
-            "parse_failed": "❌ Couldn't parse time. Please follow this format `5m1s`",
+            "parse_failed_comment": "Please follow this format `5m1s`",
             "seeked": ":fast_forward: Seeked to `{0}` `{1}` by `{2}`"
         },
         "shuffle_command": {

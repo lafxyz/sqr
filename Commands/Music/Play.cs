@@ -7,11 +7,11 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
-using SQR.Expections;
+using SQR.Exceptions;
 using SQR.Extenstions;
+using SQR.Services;
 using SQR.Translation;
 using SQR.Translation.Music;
-using QueueWorker = SQR.BackgroundTasks.QueueWorker;
 
 namespace SQR.Commands.Music;
 
@@ -20,11 +20,11 @@ public partial class Music
     [SlashCommand("play", "Add track to queue")]
     public async Task PlayCommand(InteractionContext context, [Option("name", "Music to search")] string search,
         [Option("SearchSource", "Use different search engine")]
-        QueueWorker.SearchSources source = QueueWorker.SearchSources.YouTube)
+        QueueService.SearchSources source = QueueService.SearchSources.YouTube)
     {
         var language = Language.GetLanguageOrFallback(_translator, context.Locale);
         
-        var music = language.Music;
+        var music = language.MusicTranslation;
 
         await context.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
         await _queue.TryConnectAsync(context);
@@ -43,9 +43,9 @@ public partial class Music
 
             var embedSingle = new DiscordEmbedBuilder()
                 .AsSQRDefault(context.Client)
-                .WithTitle(music.PlayCommand.AddedToQueueSingleSuccess)
+                .WithTitle(music.PlayCommandTranslation.AddedToQueueSingleSuccess)
                 .WithDescription(
-                    string.Format(music.PlayCommand.AddedToQueueSingleDescription,
+                    string.Format(music.PlayCommandTranslation.AddedToQueueSingleDescription,
                         track.Title, track.Author, track.Length.ToString(@"hh\:mm\:ss"))
                     );
 
@@ -57,15 +57,15 @@ public partial class Music
 
         var embed = new DiscordEmbedBuilder()
             .AsSQRDefault(context.Client)
-            .WithTitle(string.Format(music.PlayCommand.AddedToQueuePlaylistSuccess,
+            .WithTitle(string.Format(music.PlayCommandTranslation.AddedToQueuePlaylistSuccess,
             loadResult.LavalinkLoadResult.PlaylistInfo.Name));
 
         if (language.IsSlavicLanguage)
         {
-            var parts = music.PlayCommand.SlavicParts;
+            var parts = music.PlayCommandTranslation.SlavicParts;
 
             stringBuilder = new StringBuilder(
-                string.Format(music.PlayCommand.AddedToQueuePlaylistDescription,
+                string.Format(music.PlayCommandTranslation.AddedToQueuePlaylistDescription,
                     loadResult.LavalinkLoadResult.Tracks.Count,
                     Translator.WordForSlavicLanguage(loadResult.LavalinkLoadResult.Tracks.Count, parts.OneTrack,
                         parts.TwoTracks, parts.FiveTracks))
@@ -74,7 +74,7 @@ public partial class Music
         else
         {
             stringBuilder = new StringBuilder(
-                string.Format(music.PlayCommand.AddedToQueuePlaylistDescription,
+                string.Format(music.PlayCommandTranslation.AddedToQueuePlaylistDescription,
                     loadResult.LavalinkLoadResult.Tracks.Count)
                 );
         }
@@ -82,7 +82,7 @@ public partial class Music
         var queueCommand = context.Client.GetApplicationCommands().GetGlobalCommand(nameof(QueueCommand))!.Mention; 
         const int displayCount = 5;
         var transformed = loadResult.LavalinkLoadResult.Tracks.Select(loadResultTrack =>
-                string.Format(music.PlayCommand.AddedToQueueMessagePattern, loadResultTrack.Title,
+                string.Format(music.PlayCommandTranslation.AddedToQueueMessagePattern, loadResultTrack.Title,
                     loadResultTrack.Length.ToString(@"hh\:mm\:ss"), loadResultTrack.Author))
             .Take(displayCount).ToList();
         
@@ -93,8 +93,8 @@ public partial class Music
 
         if (language.IsSlavicLanguage)
         {
-            var globalParts = language.Music.SlavicParts;
-            stringBuilder.Append("\n" + string.Format(music.PlayCommand.MoreInQueueCommand,
+            var globalParts = language.MusicTranslation.SlavicParts;
+            stringBuilder.Append("\n" + string.Format(music.PlayCommandTranslation.MoreInQueueCommand,
                 transformed.Count,
                 Translator.WordForSlavicLanguage(loadResult.LavalinkLoadResult.Tracks.Count, globalParts.OneTrack,
                     globalParts.TwoTracks, globalParts.FiveTracks),
@@ -102,7 +102,7 @@ public partial class Music
         }
         else
         {
-            stringBuilder.Append("\n" + string.Format(music.PlayCommand.MoreInQueueCommand, transformed.Count, queueCommand));
+            stringBuilder.Append("\n" + string.Format(music.PlayCommandTranslation.MoreInQueueCommand, transformed.Count, queueCommand));
         }
 
 

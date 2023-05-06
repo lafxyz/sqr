@@ -2,8 +2,8 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SQR.BackgroundTasks;
 using SQR.Extenstions;
+using SQR.Services;
 using SQR.Translation;
 
 namespace SQR.Commands.Music;
@@ -11,33 +11,33 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("loop", "Defines loop mode")]
-    public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] QueueWorker.LoopingState state)
+    public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] QueueService.LoopingState state)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
 
         var connectedGuild = await _queue.GetConnectedGuild(context);
 
-        if (state == QueueWorker.LoopingState.Single)
+        if (state == QueueService.LoopingState.Single)
         {
             if (connectedGuild.NowPlaying != null) connectedGuild.Queue.Insert(0, connectedGuild.NowPlaying);
         }
-        else if (state == QueueWorker.LoopingState.Queue)
+        else if (state == QueueService.LoopingState.Queue)
         {
             if (connectedGuild.NowPlaying != null) connectedGuild.Queue.Add(connectedGuild.NowPlaying);
         }
         
         _queue.SetLoopState(context, state);
 
-        var map = new Dictionary<QueueWorker.LoopingState, string>
+        var map = new Dictionary<QueueService.LoopingState, string>
         {
-            { QueueWorker.LoopingState.Disabled, music.LoopCommand.NoLoop },
-            { QueueWorker.LoopingState.Single, music.LoopCommand.LoopTrack },
-            { QueueWorker.LoopingState.Queue, music.LoopCommand.LoopQueue }
+            { QueueService.LoopingState.Disabled, music.LoopCommandTranslation.NoLoop },
+            { QueueService.LoopingState.Single, music.LoopCommandTranslation.LoopTrack },
+            { QueueService.LoopingState.Queue, music.LoopCommandTranslation.LoopQueue }
         };
 
         var embed = new DiscordEmbedBuilder()
             .AsSQRDefault(context.Client)
-            .WithTitle(music.LoopCommand.Success)
+            .WithTitle(music.LoopCommandTranslation.Success)
             .WithDescription(map[state]);
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,

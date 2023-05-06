@@ -3,9 +3,9 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
-using SQR.BackgroundTasks;
-using SQR.Expections;
+using SQR.Exceptions;
 using SQR.Extenstions;
+using SQR.Services;
 using SQR.Translation;
 using SQR.Utilities;
 
@@ -25,14 +25,14 @@ public partial class Music
 
         var connectedGuild = await _queue.GetConnectedGuild(conn);
         
-        var loopMap = new Dictionary<QueueWorker.LoopingState, string>
+        var loopMap = new Dictionary<QueueService.LoopingState, string>
         {
-            { QueueWorker.LoopingState.Disabled, language.Music.StatusCommand.NoLoop },
-            { QueueWorker.LoopingState.Single, language.Music.StatusCommand.LoopTrack },
-            { QueueWorker.LoopingState.Queue, language.Music.StatusCommand.LoopQueue }
+            { QueueService.LoopingState.Disabled, language.MusicTranslation.StatusCommandTranslation.NoLoop },
+            { QueueService.LoopingState.Single, language.MusicTranslation.StatusCommandTranslation.LoopTrack },
+            { QueueService.LoopingState.Queue, language.MusicTranslation.StatusCommandTranslation.LoopQueue }
         };
         
-        var presetsLang = language.Music.StatusCommand.Presets;
+        var presetsLang = language.MusicTranslation.StatusCommandTranslation.Presets;
         var presetMap = new Dictionary<EqPresets, string>()
         {
             { EqPresets.EarRape, presetsLang.EarRape },
@@ -41,14 +41,14 @@ public partial class Music
             { EqPresets.Default, presetsLang.Default }
         };
 
-        var statusCommandLang = language.Music.StatusCommand;
+        var statusCommandLang = language.MusicTranslation.StatusCommandTranslation;
         var embed = new DiscordEmbedBuilder()
             .WithTitle(string.Format(statusCommandLang.TitleFormat,
             conn.CurrentState.CurrentTrack.Title, conn.CurrentState.CurrentTrack.Author))
             .WithDescription(await BuildDescription(conn, language))
             .AsSQRDefault(context.Client)
             .AddField(new DiscordEmbedField(statusCommandLang.IsPaused, 
-                connectedGuild.IsPaused ? language.Generic.Yes : language.Generic.No, true))
+                connectedGuild.IsPaused ? language.GenericTranslation.Yes : language.GenericTranslation.No, true))
             .AddField(new DiscordEmbedField(statusCommandLang.Volume, 
                 $"{connectedGuild.Volume}%", true))
             .AddEmptyField(true)
@@ -67,7 +67,7 @@ public partial class Music
     {
         var connectedGuild = await _queue.GetConnectedGuild(conn);
 
-        var statusCommandLang = lang.Music.StatusCommand;
+        var statusCommandLang = lang.MusicTranslation.StatusCommandTranslation;
         var fillPercentage = conn.CurrentState.PlaybackPosition / conn.CurrentState.CurrentTrack.Length;
         return string.Format("{0} {1:d02}:{2:d02} {3} {4:d02}:{5:d02}",
             (connectedGuild.IsPaused ? statusCommandLang.Paused : statusCommandLang.Playing) + " ",

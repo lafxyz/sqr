@@ -12,7 +12,7 @@ public partial class Music
     [SlashCommand("stop", "Stops playback and leaves from channel")]
     public async Task StopCommand(InteractionContext context)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
         
         var voiceState = context.Member.VoiceState;
 
@@ -23,7 +23,7 @@ public partial class Music
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
-                Content = string.Format(music.StopCommand.Disconnected, voiceState.Channel.Name)
+                Content = string.Format(music.StopCommandTranslation.Disconnected, voiceState.Channel.Name)
             });
     }
 }

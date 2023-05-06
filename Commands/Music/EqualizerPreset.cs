@@ -13,7 +13,7 @@ public partial class Music
     [SlashCommand("equalizerpreset", "Band Equalizer presets")]
     public async Task EqualizerPresetCommand(InteractionContext context, [Option("preset", "EarRape, Bass, Pop, Default")] EqPresets preset)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
         
         var conn = GetConnection(context);
 
@@ -41,8 +41,8 @@ public partial class Music
 
         var embed = new DiscordEmbedBuilder()
             .AsSQRDefault(context.Client)
-            .WithTitle(music.EqualizerPresetCommand.Success)
-            .WithDescription(string.Format(music.EqualizerPresetCommand.PresetUpdated, preset));
+            .WithTitle(music.EqualizerPresetCommandTranslation.Success)
+            .WithDescription(string.Format(music.EqualizerPresetCommandTranslation.PresetUpdated, preset));
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder()

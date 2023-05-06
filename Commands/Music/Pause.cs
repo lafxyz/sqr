@@ -12,7 +12,7 @@ public partial class Music
     [SlashCommand("pause", "Pauses playback")]
     public async Task PauseCommand(InteractionContext context)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
         
         var conn = GetConnection(context);
         
@@ -22,9 +22,9 @@ public partial class Music
 
         var embed = new DiscordEmbedBuilder()
             .AsSQRDefault(context.Client)
-            .WithTitle(music.PauseCommand.Success)
+            .WithTitle(music.PauseCommandTranslation.Success)
             .WithDescription(
-                string.Format(music.PauseCommand.Paused, currentTrack.Title, currentTrack.Author));
+                string.Format(music.PauseCommandTranslation.Paused, currentTrack.Title, currentTrack.Author));
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder().AddEmbed(embed));

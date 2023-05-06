@@ -11,7 +11,7 @@ public partial class Music
     [SlashCommand("volume", "Sets track volume")]
     public async Task VolumeCommand(InteractionContext context, [Option("percent", "From 0 to 100")] int scale)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
         
         scale = Math.Clamp(scale, 0, 100);
         await _queue.SetVolume(context, scale);
@@ -21,7 +21,7 @@ public partial class Music
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
-                Content = string.Format(music.VolumeCommand.VolumeUpdated, scale)
+                Content = string.Format(music.VolumeCommandTranslation.VolumeUpdated, scale)
             });
     }
 }

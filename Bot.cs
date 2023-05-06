@@ -12,12 +12,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using SQR.BackgroundTasks;
 using SQR.Database;
-using SQR.Expections;
+using SQR.Exceptions;
 using SQR.Services;
 using SQR.Translation;
-using Dev = SQR.Translation.Dev;
+using SQR.Utilities;
 
 namespace SQR;
 
@@ -44,7 +43,7 @@ public class Bot
         
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<Translator>();
-        serviceCollection.AddSingleton<QueueWorker>();
+        serviceCollection.AddSingleton<QueueService>();
         serviceCollection.AddSingleton<ExceptionHandler>();
         serviceCollection.AddDbContext<Context>(builder =>
         {
@@ -90,7 +89,7 @@ public class Bot
 
         var guildCommands = new List<Type>
         {
-            typeof(Dev)
+            typeof(DevTranslation)
         };
         
         foreach (var discordClient in discord.ShardClients.Values)
@@ -123,7 +122,7 @@ public class Bot
         }
         discord.Logger.LogInformation("Application commands registered successfully");
 
-        discord.VoiceStateUpdated += QueueWorker.VoiceStateUpdate;
+        discord.VoiceStateUpdated += QueueService.VoiceStateUpdate;
         
         discord.Ready += async (client, _) =>
         {

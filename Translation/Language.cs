@@ -10,11 +10,11 @@ namespace SQR.Translation
         
         [JsonProperty("exceptions")] public Exceptions Exceptions { get; set; }
 
-        [JsonProperty("generic")] public Generic Generic { get; set; }
+        [JsonProperty("generic")] public GenericTranslation GenericTranslation { get; set; }
 
-        [JsonProperty("music")] public Music.Music Music { get; set; }
+        [JsonProperty("music")] public Music.MusicTranslation MusicTranslation { get; set; }
 
-        [JsonProperty("dev")] public Dev Dev { get; set; }
+        [JsonProperty("dev")] public DevTranslation DevTranslation { get; set; }
     }
 
     public partial class Language

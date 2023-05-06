@@ -1,6 +1,6 @@
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
-using SQR.BackgroundTasks;
+using SQR.Services;
 
 namespace SQR.Models.Music;
 
@@ -8,7 +8,7 @@ public class ConnectedGuild
 {
     public Guid Id = Guid.NewGuid();
     public Track? NowPlaying = null;
-    public QueueWorker.LoopingState Looping = QueueWorker.LoopingState.Disabled;
+    public QueueService.LoopingState Looping = QueueService.LoopingState.Disabled;
     public List<Track> Queue = new();
     public InteractionContext Context = null!;
     public bool IsPaused = false;

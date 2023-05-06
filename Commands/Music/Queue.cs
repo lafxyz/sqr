@@ -21,7 +21,7 @@ public partial class Music
         _ = Task.Run(async () =>
         {
             var language = Language.GetLanguageOrFallback(_translator, context.Locale);
-            var music = language.Music;
+            var music = language.MusicTranslation;
 
             var conn = GetConnection(context)!;
 
@@ -45,7 +45,7 @@ public partial class Music
             {
                 var parts = music.SlavicParts;
 
-                stringBuilder = new StringBuilder(string.Format(music.QueueCommand.NowPlaying,
+                stringBuilder = new StringBuilder(string.Format(music.QueueCommandTranslation.NowPlaying,
                     currentTrack.Title,
                     currentTrack.Author,
                     conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
@@ -58,7 +58,7 @@ public partial class Music
             }
             else
             {
-                stringBuilder = new StringBuilder(string.Format(music.QueueCommand.NowPlaying,
+                stringBuilder = new StringBuilder(string.Format(music.QueueCommandTranslation.NowPlaying,
                     currentTrack.Title, currentTrack.Author,
                     conn.CurrentState.PlaybackPosition.ToString(@"hh\:mm\:ss"),
                     currentTrack.Length.ToString(@"hh\:mm\:ss"), tracks.Count,
@@ -79,13 +79,13 @@ public partial class Music
             var transformedTracks = current.Content.Select(x =>
             {
                 var lavalinkTrack = x.LavalinkTrack;
-                var transformed = string.Format(music.QueueCommand.QueueMessagePattern, lavalinkTrack.Author,
+                var transformed = string.Format(music.QueueCommandTranslation.QueueMessagePattern, lavalinkTrack.Author,
                     lavalinkTrack.Title, lavalinkTrack.Length.ToString(@"hh\:mm\:ss"), x.DiscordUser.Mention);
                 return transformed;
             });
 
             var content = string.Join("\n", transformedTracks);
-            var currentPage = string.Format(language.Music.QueueCommand.CurrentPage,
+            var currentPage = string.Format(language.MusicTranslation.QueueCommandTranslation.CurrentPage,
                 current.Index, pageContainer.Pages.Count);
             embed.WithDescription(stringBuilder + currentPage + content);
             
@@ -134,13 +134,13 @@ public partial class Music
                 transformedTracks = page.Content.Select(x =>
                 {
                     var lavalinkTrack = x.LavalinkTrack;
-                    var transformed = string.Format(music.QueueCommand.QueueMessagePattern, lavalinkTrack.Author,
+                    var transformed = string.Format(music.QueueCommandTranslation.QueueMessagePattern, lavalinkTrack.Author,
                         lavalinkTrack.Title, lavalinkTrack.Length.ToString(@"hh\:mm\:ss"), x.DiscordUser.Mention);
                     return transformed;
                 });
                 
                 content = string.Join("\n", transformedTracks);
-                currentPage = string.Format(language.Music.QueueCommand.CurrentPage,
+                currentPage = string.Format(language.MusicTranslation.QueueCommandTranslation.CurrentPage,
                     page.Index, pageContainer.Pages.Count);
 
                 embed.WithDescription(stringBuilder + currentPage + content);

@@ -3,8 +3,7 @@ using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Lavalink;
-using SQR.BackgroundTasks;
-using SQR.Expections;
+using SQR.Exceptions;
 using SQR.Extenstions;
 using SQR.Services;
 using SQR.Translation;
@@ -13,7 +12,7 @@ using SQR.Utilities;
 namespace SQR.Commands.Music;
 public partial class Music : ApplicationCommandsModule
 {
-    public Music(DatabaseService dbService, QueueWorker queue, Translator translator)
+    public Music(DatabaseService dbService, QueueService queue, Translator translator)
     {
         _dbService = dbService;
         _queue = queue;
@@ -43,7 +42,7 @@ public partial class Music : ApplicationCommandsModule
     }
 
     private Translator _translator { get; }
-    private QueueWorker _queue { get; }
+    private QueueService _queue { get; }
     private DatabaseService _dbService { get; }
 
     private List<string> _excludeVoiceState;

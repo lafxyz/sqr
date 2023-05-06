@@ -3,9 +3,9 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
-using SQR.BackgroundTasks;
-using SQR.Expections;
+using SQR.Exceptions;
 using SQR.Extenstions;
+using SQR.Services;
 using SQR.Translation;
 
 namespace SQR.Commands.Music;
@@ -21,7 +21,7 @@ public partial class Music
         var conn = GetConnection(context);
         var connectedGuild = await _queue.GetConnectedGuild(context);
         var users = voiceState.Channel.Users.Where(x => x.IsBot == false).ToList();
-        var threshold = (int)(users.Count * 0.7f);
+        var threshold = (int)(users.Count * 30.0f);
 
         if (connectedGuild.NowPlaying is null)
             throw new CurrentTrackIsNullException();
@@ -42,10 +42,10 @@ public partial class Music
         var llt = connectedGuild.NowPlaying.LavalinkTrack;
         if (voteSkip.Users.Count >= threshold)
         {
-            embed.WithDescription(string.Format(language.Music.VoteSkipCommand.ThresholdPassed,
+            embed.WithDescription(string.Format(language.MusicTranslation.VoteSkipCommandTranslation.ThresholdPassed,
                 llt.Title, llt.Author));
             
-            if (connectedGuild.Looping == QueueWorker.LoopingState.Single
+            if (connectedGuild.Looping == QueueService.LoopingState.Single
                 && connectedGuild.NowPlaying == connectedGuild.Queue.ElementAt(0))
             {
                 connectedGuild.Queue.RemoveAt(0);
@@ -62,8 +62,8 @@ public partial class Music
         
         if (language.IsSlavicLanguage)
         {
-            var slavicParts = language.Music.VoteSkipCommand.SlavicParts;
-            embed.WithDescription(string.Format(language.Music.VoteSkipCommand.Voted,
+            var slavicParts = language.MusicTranslation.VoteSkipCommandTranslation.SlavicParts;
+            embed.WithDescription(string.Format(language.MusicTranslation.VoteSkipCommandTranslation.Voted,
                 llt.Title, llt.Author, required,
                 Translator.WordForSlavicLanguage(required, slavicParts.OneVote,
                     slavicParts.TwoVotes, slavicParts.FiveVotes)
@@ -71,7 +71,7 @@ public partial class Music
         }
         else
         {
-            embed.WithDescription(string.Format(language.Music.VoteSkipCommand.Voted,
+            embed.WithDescription(string.Format(language.MusicTranslation.VoteSkipCommandTranslation.Voted,
                 llt.Title, llt.Author, required));
         }
 

@@ -2,7 +2,7 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
-using SQR.BackgroundTasks;
+using SQR.Services;
 using SQR.Translation;
 
 namespace SQR.Commands.Music;
@@ -12,13 +12,13 @@ public partial class Music
     [SlashCommand("skip", "Skip current playing track")]
     public async Task SkipCommand(InteractionContext context)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).Music;
+        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
 
         var conn = GetConnection(context);
 
         var connectedGuild = await _queue.GetConnectedGuild(context);
 
-        if (connectedGuild.Looping == QueueWorker.LoopingState.Single
+        if (connectedGuild.Looping == QueueService.LoopingState.Single
             && connectedGuild.NowPlaying == connectedGuild.Queue.ElementAt(0))
         {
             Console.WriteLine("true");
@@ -30,7 +30,7 @@ public partial class Music
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder
             {
-                Content = string.Format(music.SkipCommand.Skipped, conn.CurrentState.CurrentTrack.Title, conn.CurrentState.CurrentTrack.Author)
+                Content = string.Format(music.SkipCommandTranslation.Skipped, conn.CurrentState.CurrentTrack.Title, conn.CurrentState.CurrentTrack.Author)
             });
     }
 }

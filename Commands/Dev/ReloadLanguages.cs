@@ -12,11 +12,11 @@ public partial class Dev
     [SlashCommand("reloadlanguages", "Reloads phrases for all languages")]
     public async Task ReloadLanguagesCommand(InteractionContext context)
     {
-        var language = Translator.Languages[Translator.LanguageCode.EN].Dev;
+        var language = Translator.Languages[Translator.LanguageCode.EN].DevTranslation;
 
         if (Translator.LocaleMap.ContainsKey(context.Locale))
         {
-            language = Translator.Languages[Translator.LocaleMap[context.Locale]].Dev;
+            language = Translator.Languages[Translator.LocaleMap[context.Locale]].DevTranslation;
         }
         
         if (!context.Client.CurrentApplication.Owners.Contains(context.User))
@@ -25,7 +25,7 @@ public partial class Dev
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = language.General.NoAccess
+                    Content = language.GeneralTranslation.NoAccess
                 });
             return; 
         }
@@ -38,7 +38,7 @@ public partial class Dev
                 new DiscordInteractionResponseBuilder
                 {
                     IsEphemeral = true,
-                    Content = language.ReloadCommand.Reloaded
+                    Content = language.ReloadCommandTranslation.Reloaded
                 });
         }
         catch (Exception e)
