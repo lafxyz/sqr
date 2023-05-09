@@ -6,6 +6,7 @@ namespace SQR.Translation;
 
 public class Exceptions
 {
+    [JsonProperty("something_went_wrong")] public string SomethingWentWrong { get; set; }
     [JsonProperty("client_is_not_connected")] public string ClientIsNotConnected { get; set; }
     [JsonProperty("different_voice")] public string DifferentVoice { get; set; }
     [JsonProperty("lavalink_is_not_connected")] public string LavalinkIsNotConnected { get; set; }

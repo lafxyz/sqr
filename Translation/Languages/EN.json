@@ -1,6 +1,7 @@
 {
     "is_slavic_language": false,
     "exceptions": {
+        "something_went_wrong": "Something went wrong :(",
         "got_exception": "You ran into an exception!",
         "client_is_not_connected": "❌ Client is not connected",
         "different_voice": "❌ You're in different voice channel",

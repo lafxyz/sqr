@@ -3,6 +3,7 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using SQR.Attributes;
 using SQR.Exceptions;
 using SQR.Translation;
 using TimeSpanParserUtil;
@@ -12,6 +13,9 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("seek", "Sets playback time")]
+    [RequireLavalinkConnection]
+    [BotAndUserMustBeInTheSameVoiceChannel]
+    [UserMustBeInVoiceChannel]
     public async Task SeekCommand(InteractionContext context, [Option("time", "Time from which playback starts")] string time)
     {
         var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;

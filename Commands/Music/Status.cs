@@ -3,6 +3,7 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using SQR.Attributes;
 using SQR.Exceptions;
 using SQR.Extenstions;
 using SQR.Services;
@@ -14,6 +15,9 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("status", "Displays current playback and settings")]
+    [RequireLavalinkConnection]
+    [BotAndUserMustBeInTheSameVoiceChannel]
+    [UserMustBeInVoiceChannel]
     public async Task StatusCommand(InteractionContext context)
     {
         var language = Language.GetLanguageOrFallback(_translator, context.Locale);

@@ -7,6 +7,7 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using SQR.Attributes;
 using SQR.Exceptions;
 using SQR.Extenstions;
 using SQR.Services;
@@ -18,6 +19,7 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("play", "Add track to queue")]
+    [UserMustBeInVoiceChannel]
     public async Task PlayCommand(InteractionContext context, [Option("name", "Music to search")] string search,
         [Option("SearchSource", "Use different search engine")]
         QueueService.SearchSources source = QueueService.SearchSources.YouTube)

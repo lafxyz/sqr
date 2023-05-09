@@ -3,6 +3,7 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using SQR.Attributes;
 using SQR.Translation;
 
 namespace SQR.Commands.Music;
@@ -10,6 +11,9 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("stop", "Stops playback and leaves from channel")]
+    [RequireLavalinkConnection]
+    [BotAndUserMustBeInTheSameVoiceChannel]
+    [UserMustBeInVoiceChannel]
     public async Task StopCommand(InteractionContext context)
     {
         var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;

@@ -18,7 +18,6 @@ public class ConnectedGuild
     public bool WaitingForTracks = false;
     public DateTimeOffset WaitingForTracksSince;
     public VoteSkip VoteSkip = new();
-
 }
 
 public class VoteSkip

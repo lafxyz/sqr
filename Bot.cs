@@ -3,6 +3,7 @@ using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.EventArgs;
 using DisCatSharp.Entities;
+using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.Extensions;
@@ -75,7 +76,8 @@ public class Bot
 
         await discord.StartAsync();
         
-        discord.Logger.LogInformation("Connection success! Logged in as {Username}#{Discriminator} ({Id})", discord.CurrentUser.Username, discord.CurrentUser.Discriminator, discord.CurrentUser.Id);
+        discord.Logger.LogInformation("Connection success! Logged in as {Username}#{Discriminator} ({Id})",
+            discord.CurrentUser.Username, discord.CurrentUser.Discriminator, discord.CurrentUser.Id);
 
         var lavalink = await discord.UseLavalinkAsync();
         foreach (var extension in lavalink.Values)
@@ -124,33 +126,35 @@ public class Bot
 
         discord.VoiceStateUpdated += QueueService.VoiceStateUpdate;
         
-        discord.Ready += async (client, _) =>
-        {
-            _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
-            
-            var configUpdater = new BackgroundTask(TimeSpan.FromHours(12));
-            configUpdater.AssignAndStartTask(async () =>
-            {
-                _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
-            });
-
-            var activityIndex = 0;
-
-            var activityTask = new BackgroundTask(TimeSpan.FromSeconds(30));
-            activityTask.AssignAndStartTask(async () =>
-            {
-                if (activityIndex >= _config.Activities.Count) activityIndex = 0;
-                var activity = _config.Activities[activityIndex];
-                if (string.IsNullOrWhiteSpace(activity?.Name)) 
-                    throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
-                await discord.UpdateStatusAsync(new DiscordActivity { Name = activity.Name, ActivityType = activity.Type, StreamUrl = activity.StreamUrl });
-
-                activityIndex += 1;
-            });
-            discord.Logger.LogInformation("Ready to use!");
-        };
+        discord.Ready += DiscordOnReady;
 
         await Task.Delay(-1);
+    }
+
+    private static async Task DiscordOnReady(DiscordClient client, ReadyEventArgs e)
+    {
+        _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
+            
+        var configUpdater = new BackgroundTask(TimeSpan.FromHours(12));
+        configUpdater.AssignAndStartTask(async () =>
+        {
+            _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
+        });
+
+        var activityIndex = 0;
+
+        var activityTask = new BackgroundTask(TimeSpan.FromSeconds(30));
+        activityTask.AssignAndStartTask(async () =>
+        {
+            if (activityIndex >= _config.Activities.Count) activityIndex = 0;
+            var activity = _config.Activities[activityIndex];
+            if (string.IsNullOrWhiteSpace(activity?.Name)) 
+                throw new NullReferenceException($"{nameof(activity)}.{nameof(activity.Name)} cannot be null");
+            await client.UpdateStatusAsync(new DiscordActivity { Name = activity.Name, ActivityType = activity.Type, StreamUrl = activity.StreamUrl });
+
+            activityIndex += 1;
+        });
+        client.Logger.LogInformation("Ready to use!");
     }
 
     private static Task SlashCommandExecuted(ApplicationCommandsExtension sender, SlashCommandExecutedEventArgs e)

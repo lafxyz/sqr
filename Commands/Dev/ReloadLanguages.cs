@@ -29,27 +29,13 @@ public partial class Dev
                 });
             return; 
         }
-
-        try
-        {
-            Translator.Reload();
+        Translator.Reload();
         
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
-                {
-                    IsEphemeral = true,
-                    Content = language.ReloadCommandTranslation.Reloaded
-                });
+        await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder
+            {
+                IsEphemeral = true,
+                Content = language.ReloadCommandTranslation.Reloaded
+            });
         }
-        catch (Exception e)
-        {
-            await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
-                {
-                    IsEphemeral = true,
-                    Content = e.ToString()
-                });
-            throw;
-        }
-    }
 }

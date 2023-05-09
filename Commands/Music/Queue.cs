@@ -6,6 +6,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.Lavalink;
+using SQR.Attributes;
 using SQR.Extenstions;
 using SQR.Models.Music;
 using SQR.Pagination;
@@ -16,6 +17,9 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("queue", "Display queue")]
+    [RequireLavalinkConnection]
+    [BotAndUserMustBeInTheSameVoiceChannel]
+    [UserMustBeInVoiceChannel]
     public async Task QueueCommand(InteractionContext context)
     {
         _ = Task.Run(async () =>

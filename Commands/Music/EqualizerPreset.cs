@@ -3,6 +3,7 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
+using SQR.Attributes;
 using SQR.Extenstions;
 using SQR.Translation;
 
@@ -11,6 +12,9 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("equalizerpreset", "Band Equalizer presets")]
+    [RequireLavalinkConnection]
+    [BotAndUserMustBeInTheSameVoiceChannel]
+    [UserMustBeInVoiceChannel]
     public async Task EqualizerPresetCommand(InteractionContext context, [Option("preset", "EarRape, Bass, Pop, Default")] EqPresets preset)
     {
         var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;

@@ -60,39 +60,11 @@ public partial class Music : ApplicationCommandsModule
         [ChoiceName("Default")]
         Default
     }
-    
-    public override Task<bool> BeforeSlashExecutionAsync(InteractionContext context)
-    {
-        var voiceState = context.Member.VoiceState;
 
-        var conn = GetConnection(context);
-
-        if (voiceState is null || context.Guild.Id != voiceState.Guild.Id)
-        {
-            if (_excludeVoiceState.Contains(context.CommandName) == false)
-                throw new NotInVoiceChannelException();
-        }
-
-        if (conn == null)
-        {
-            if (_excludeIsConnected.Contains(context.CommandName) == false)
-                throw new ClientIsNotConnectedException();
-        }
-        
-        if (context.Guild.CurrentMember.VoiceState != null 
-            && voiceState?.Channel != context.Guild.CurrentMember.VoiceState.Channel)
-        {
-            if (_excludeDifferentChannel.Contains(context.CommandName) == false)
-                throw new DifferentVoiceChannelException();
-        }
-
-        return Task.FromResult(true);
-    }
-
-    private LavalinkGuildConnection? GetConnection(BaseContext context)
+    public static LavalinkGuildConnection? GetConnection(BaseContext context)
     {
         var lava = context.Client.GetLavalink();
-        var node = lava.ConnectedNodes.Values.First();
-        return node.GetGuildConnection(context.Guild);
+        var node = lava.ConnectedNodes.Values.FirstOrDefault();
+        return node?.GetGuildConnection(context.Guild);
     }
 }

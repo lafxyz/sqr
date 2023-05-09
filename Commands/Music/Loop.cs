@@ -2,6 +2,7 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using SQR.Attributes;
 using SQR.Extenstions;
 using SQR.Services;
 using SQR.Translation;
@@ -11,6 +12,9 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("loop", "Defines loop mode")]
+    [RequireLavalinkConnection]
+    [BotAndUserMustBeInTheSameVoiceChannel]
+    [UserMustBeInVoiceChannel]
     public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] QueueService.LoopingState state)
     {
         var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;

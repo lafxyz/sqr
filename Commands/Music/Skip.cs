@@ -2,6 +2,7 @@ using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
+using SQR.Attributes;
 using SQR.Services;
 using SQR.Translation;
 
@@ -10,6 +11,9 @@ namespace SQR.Commands.Music;
 public partial class Music
 {
     [SlashCommand("skip", "Skip current playing track")]
+    [RequireLavalinkConnection]
+    [BotAndUserMustBeInTheSameVoiceChannel]
+    [UserMustBeInVoiceChannel]
     public async Task SkipCommand(InteractionContext context)
     {
         var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;

@@ -27,7 +27,7 @@ public static class DiscordEmbedBuilderExtensions
     public static DiscordEmbedBuilder AsException(this DiscordEmbedBuilder builder,
                                                     Language lang, string description)
     {
-        builder.Title = "You ran into an exception!";
+        builder.Title = lang.Exceptions.SomethingWentWrong;
         builder.Description = description;
         builder.Color = DiscordColor.IndianRed;
 
