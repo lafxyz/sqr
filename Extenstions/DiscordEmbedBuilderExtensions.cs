@@ -21,7 +21,7 @@ public static class DiscordEmbedBuilderExtensions
         Language language)
     {
         var dev = Bot.Config.DeveloperUser;
-        var infoCommand = client.GetApplicationCommands().GetGlobalCommand(typeof(Info), nameof(Info.InfoCommand))!.Mention;
+        var infoCommand = "/" + client.GetApplicationCommands().GetGlobalCommand(typeof(Info), nameof(Info.InfoCommand))!.Name;
         var footer = string.Format(language.Temporary.Footer, infoCommand);
 
         builder.Color = EmbedUtilities.DiscordBackgroundColor;

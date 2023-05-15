@@ -16,14 +16,13 @@
         "footer": "Bot will be not maintained in near future more in {0}",
         "army_lines": [
             "Hi, im creator of this bot and i can't continue to maintain this bot in near year",
-            "all because i going to army. I hope i'll continue maintain bot after all. See y'all!"
+            "all because i going to army. I hope i'll continue maintain bot after all. See y'all!",
+            "A lot parts in this bot is broken / WIP. Don't use this bot as main music bot or sth."
         ]
     },
     "generic": {
         "yes": "Yes",
         "no": "No",
-        "internal_error": "An internal error happened: `{0}`",
-        "external_error": "An external error happened: `{0}`"
     },
     "music": {
         "queue_worker": {
