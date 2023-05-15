@@ -81,7 +81,7 @@ public partial class Music
                 );
         }
 
-        var queueCommand = context.Client.GetApplicationCommands().GetGlobalCommand(nameof(QueueCommand))!.Mention; 
+        var queueCommand = context.Client.GetApplicationCommands().GetGlobalCommand(typeof(Music), nameof(QueueCommand))!.Mention; 
         
         const int displayCount = 5;
         var transformed = loadResult.LavalinkLoadResult.Tracks.Select(loadResultTrack =>

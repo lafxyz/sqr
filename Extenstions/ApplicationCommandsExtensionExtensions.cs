@@ -9,19 +9,21 @@ namespace SQR.Extenstions;
 
 public static class ApplicationCommandsExtensionExtensions
 {
-    public static DiscordApplicationCommand? GetGlobalCommand(this ApplicationCommandsExtension extension,
+    public static DiscordApplicationCommand? GetGlobalCommand(this ApplicationCommandsExtension extension, 
+        Type type,
         string commandName)
     {
         return extension.GlobalCommands.FirstOrDefault(x =>
-            x.Name == AssemblyScanUtilities.GetSlashCommandAttribute(typeof(Music), commandName).Name
+            x.Name == AssemblyScanUtilities.GetSlashCommandAttribute(type, commandName).Name
         );
     }
     
     public static DiscordApplicationCommand? GetGuildCommand(this ApplicationCommandsExtension extension,
+        Type type,
         ulong guildId, string commandName)
     {
         return extension.GuildCommands[guildId].FirstOrDefault(x =>
-            x.Name == AssemblyScanUtilities.GetSlashCommandAttribute(typeof(Music), commandName).Name
+            x.Name == AssemblyScanUtilities.GetSlashCommandAttribute(type, commandName).Name
         );
     }
 }
