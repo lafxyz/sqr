@@ -41,7 +41,7 @@ public partial class Music
             throw new AlreadyVotedException(connectedGuild.NowPlaying);
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(context.Client);
+            .AsSQRDefault(context.Client, language);
 
         var llt = connectedGuild.NowPlaying.LavalinkTrack;
         if (voteSkip.Users.Count >= threshold)

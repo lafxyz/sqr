@@ -12,6 +12,13 @@
         "already_voted": "❌ You're already voted for skip `{0} by {1}`",
         "parse_failed": "❌ Couldn't parse. `Comment: {0}`"
     },
+    "temporary": {
+        "footer": "Bot will be not maintained in near future more in {0}",
+        "army_lines": [
+            "Hi, im creator of this bot and i can't continue to maintain this bot in near year",
+            "all because i going to army. I hope i'll continue maintain bot after all. See y'all!"
+        ]
+    },
     "generic": {
         "yes": "Yes",
         "no": "No",

@@ -17,37 +17,11 @@ public partial class Music : ApplicationCommandsModule
         _dbService = dbService;
         _queue = queue;
         _translator = translator;
-        
-        SetupExcludes();
-    }
-
-    private void SetupExcludes()
-    {
-        var musicType = typeof(Music);
-        _excludeVoiceState = new List<string>
-        {
-            AssemblyScanUtilities.GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
-        };
-
-        _excludeIsConnected = new List<string>
-        {
-            AssemblyScanUtilities.GetSlashCommandAttribute(musicType, nameof(PlayCommand)).Name,
-            AssemblyScanUtilities.GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
-        };
-
-        _excludeDifferentChannel = new List<string>
-        {
-            AssemblyScanUtilities.GetSlashCommandAttribute(musicType, nameof(PopularTracksCommand)).Name
-        };
     }
 
     private Translator _translator { get; }
     private QueueService _queue { get; }
     private DatabaseService _dbService { get; }
-
-    private List<string> _excludeVoiceState;
-    private List<string> _excludeIsConnected;
-    private List<string> _excludeDifferentChannel;
 
     public enum EqPresets
     {

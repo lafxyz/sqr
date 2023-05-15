@@ -44,7 +44,7 @@ public class ExceptionHandler
         Log.Logger.Warning("SUPPRESSED EXCEPTION!\n {Exception}", e.Exception);
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, "```" + e.Exception + "```");
 
         var baseException = e.Exception as BaseException;
@@ -58,7 +58,7 @@ public class ExceptionHandler
         if (e.Exception is not LavalinkIsNotConnectedException exception) return false;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, lang.Exceptions.LavalinkIsNotConnected);
         
         await SendOrEditResponseAsync(e.Context, embed, exception.IsDeferred);
@@ -72,7 +72,7 @@ public class ExceptionHandler
         var llt = exception.Track.LavalinkTrack;
         
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, string.Format(
                     lang.Exceptions.AlreadyVoted, llt.Title, llt.Author
                 ));
@@ -86,7 +86,7 @@ public class ExceptionHandler
         if (e.Exception is not ParseFailedException exception) return false;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, string.Format(lang.Exceptions.ParseFailed, e.Exception.Message));
 
         await SendOrEditResponseAsync(e.Context, embed, exception.IsDeferred);
@@ -99,7 +99,7 @@ public class ExceptionHandler
         if (e.Exception is not NotInVoiceChannelException exception) return false;
         
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, lang.Exceptions.NotInVoice);
         
         await SendOrEditResponseAsync(e.Context, embed, exception.IsDeferred);
@@ -112,7 +112,7 @@ public class ExceptionHandler
         if (e.Exception is not ClientIsNotConnectedException exception) return false;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, lang.Exceptions.ClientIsNotConnected);
 
         await SendOrEditResponseAsync(e.Context, embed, exception.IsDeferred);
@@ -125,7 +125,7 @@ public class ExceptionHandler
         if (e.Exception is not DifferentVoiceChannelException exception) return false;
         
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, lang.Exceptions.DifferentVoice);
         
         await SendOrEditResponseAsync(e.Context, embed, exception.IsDeferred);
@@ -139,7 +139,7 @@ public class ExceptionHandler
         if (e.Exception is not TrackSearchFailedException exception) return false;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, string.Format(lang.Exceptions.TrackSearchFailed, 
                 exception.SearchString)
             );
@@ -154,7 +154,7 @@ public class ExceptionHandler
         if (e.Exception is not CurrentTrackIsNullException exception) return false;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(e.Context.Client)
+            .AsSQRDefault(e.Context.Client, lang)
             .AsException(lang, lang.Exceptions.NothingIsPlaying);
 
         await SendOrEditResponseAsync(e.Context, embed, exception.IsDeferred);

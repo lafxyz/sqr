@@ -44,7 +44,7 @@ public partial class Music
             var track = loadResult.LavalinkLoadResult.Tracks.First();
 
             var embedSingle = new DiscordEmbedBuilder()
-                .AsSQRDefault(context.Client)
+                .AsSQRDefault(context.Client, language)
                 .WithTitle(music.PlayCommandTranslation.AddedToQueueSingleSuccess)
                 .WithDescription(
                     string.Format(music.PlayCommandTranslation.AddedToQueueSingleDescription,
@@ -58,7 +58,7 @@ public partial class Music
         StringBuilder stringBuilder;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(context.Client)
+            .AsSQRDefault(context.Client, language)
             .WithTitle(string.Format(music.PlayCommandTranslation.AddedToQueuePlaylistSuccess,
             loadResult.LavalinkLoadResult.PlaylistInfo.Name));
 
@@ -82,6 +82,7 @@ public partial class Music
         }
 
         var queueCommand = context.Client.GetApplicationCommands().GetGlobalCommand(nameof(QueueCommand))!.Mention; 
+        
         const int displayCount = 5;
         var transformed = loadResult.LavalinkLoadResult.Tracks.Select(loadResultTrack =>
                 string.Format(music.PlayCommandTranslation.AddedToQueueMessagePattern, loadResultTrack.Title,

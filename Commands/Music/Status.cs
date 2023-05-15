@@ -50,7 +50,7 @@ public partial class Music
             .WithTitle(string.Format(statusCommandLang.TitleFormat,
             conn.CurrentState.CurrentTrack.Title, conn.CurrentState.CurrentTrack.Author))
             .WithDescription(await BuildDescription(conn, language))
-            .AsSQRDefault(context.Client)
+            .AsSQRDefault(context.Client, language)
             .AddField(new DiscordEmbedField(statusCommandLang.IsPaused, 
                 connectedGuild.IsPaused ? language.GenericTranslation.Yes : language.GenericTranslation.No, true))
             .AddField(new DiscordEmbedField(statusCommandLang.Volume, 

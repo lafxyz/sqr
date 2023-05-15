@@ -17,7 +17,8 @@ public partial class Music
     [UserMustBeInVoiceChannel]
     public async Task EqualizerPresetCommand(InteractionContext context, [Option("preset", "EarRape, Bass, Pop, Default")] EqPresets preset)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
+        var music = language.MusicTranslation;
         
         var conn = GetConnection(context);
 
@@ -44,7 +45,7 @@ public partial class Music
         _queue.SetPreset(context, preset);
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(context.Client)
+            .AsSQRDefault(context.Client, language)
             .WithTitle(music.EqualizerPresetCommandTranslation.Success)
             .WithDescription(string.Format(music.EqualizerPresetCommandTranslation.PresetUpdated, preset));
 

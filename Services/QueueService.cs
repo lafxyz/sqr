@@ -75,7 +75,7 @@ public class QueueService
             connectedGuild.NowPlaying = null;
 
             var embed = new DiscordEmbedBuilder()
-                .AsSQRDefault(context.Client);
+                .AsSQRDefault(context.Client, language);
             
             const int seconds = 60;
             if (language.IsSlavicLanguage)
@@ -129,7 +129,7 @@ public class QueueService
             connectedGuild.IsFirstTrackReceived = true;
 
         var finalEmbed = new DiscordEmbedBuilder()
-            .AsSQRDefault(context.Client)
+            .AsSQRDefault(context.Client, language)
             .WithDescription(string.Format(
                                  music.QueueWorkerTranslation.NowPlaying, 
                                  toPlay.LavalinkTrack.Title,
@@ -199,7 +199,7 @@ public class QueueService
         if (node is null)
         {
             //TODO: Sometimes node is null ig // idk cant test on my machine internet moment ig :((
-            Log.Logger.Information("Node is null! BOB DO SOMETHING!");
+            Log.Logger.Warning("Node is null! BOB DO SOMETHING!");
             return new LoadResult(null!, false);
         }
         

@@ -17,15 +17,16 @@ public partial class Music
     [UserMustBeInVoiceChannel]
     public async Task EqualizerCommand(InteractionContext context, [Option("band", "From 0 up to 14")] int bandId, [Option("scale", "From -0,25 up to 1,0")] string scale)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
-
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
+        var music = language.MusicTranslation;
+        
         var conn = GetConnection(context);
 
         var gain = Convert.ToSingle(scale);
         await conn.AdjustEqualizerAsync(new LavalinkBandAdjustment(bandId, gain));
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(context.Client)
+            .AsSQRDefault(context.Client, language)
             .WithTitle(music.EqualizerCommandTranslation.Success)
             .WithDescription(string.Format(music.EqualizerCommandTranslation.GainUpdated, bandId, gain));
 

@@ -8,6 +8,8 @@ namespace SQR.Translation
     {
         [JsonProperty("is_slavic_language")] public bool IsSlavicLanguage { get; set; }
         
+        [JsonProperty("temporary")] public TemporaryTranslation Temporary { get; set; }
+        
         [JsonProperty("exceptions")] public Exceptions Exceptions { get; set; }
 
         [JsonProperty("generic")] public GenericTranslation GenericTranslation { get; set; }

@@ -43,7 +43,7 @@ public partial class Music
                 (current, track) => current.Add(track.LavalinkTrack.Length));
 
             var embed = new DiscordEmbedBuilder()
-                .AsSQRDefault(context.Client);
+                .AsSQRDefault(context.Client, language);
 
             if (language.IsSlavicLanguage)
             {

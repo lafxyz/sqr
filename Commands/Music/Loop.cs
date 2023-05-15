@@ -17,7 +17,8 @@ public partial class Music
     [UserMustBeInVoiceChannel]
     public async Task LoopCommand(InteractionContext context, [Option("mode", "Looping mode")] QueueService.LoopingState state)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
+        var music = language.MusicTranslation;
 
         var connectedGuild = await _queue.GetConnectedGuild(context);
 
@@ -40,7 +41,7 @@ public partial class Music
         };
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(context.Client)
+            .AsSQRDefault(context.Client, language)
             .WithTitle(music.LoopCommandTranslation.Success)
             .WithDescription(map[state]);
 

@@ -16,7 +16,7 @@ public partial class Music
     [UserMustBeInVoiceChannel]
     public async Task PauseCommand(InteractionContext context)
     {
-        var music = Language.GetLanguageOrFallback(_translator, context.Locale).MusicTranslation;
+        var language = Language.GetLanguageOrFallback(_translator, context.Locale);
         
         var conn = GetConnection(context);
         
@@ -25,10 +25,10 @@ public partial class Music
         var currentTrack = conn.CurrentState.CurrentTrack;
 
         var embed = new DiscordEmbedBuilder()
-            .AsSQRDefault(context.Client)
-            .WithTitle(music.PauseCommandTranslation.Success)
+            .AsSQRDefault(context.Client, language)
+            .WithTitle(language.MusicTranslation.PauseCommandTranslation.Success)
             .WithDescription(
-                string.Format(music.PauseCommandTranslation.Paused, currentTrack.Title, currentTrack.Author));
+                string.Format(language.MusicTranslation.PauseCommandTranslation.Paused, currentTrack.Title, currentTrack.Author));
 
         await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder().AddEmbed(embed));

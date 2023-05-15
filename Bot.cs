@@ -134,7 +134,7 @@ public class Bot
     private static async Task DiscordOnReady(DiscordClient client, ReadyEventArgs e)
     {
         _config.DeveloperUser = await client.GetUserAsync(_config.DeveloperId, true);
-            
+
         var configUpdater = new BackgroundTask(TimeSpan.FromHours(12));
         configUpdater.AssignAndStartTask(async () =>
         {
